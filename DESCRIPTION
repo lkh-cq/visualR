@@ -1,0 +1,25 @@
+Package: visualR
+Type: Package
+Title: Palindrome-Addressed Topological Runtime
+Version: 0.1.1
+Date: 2026-08-06
+Authors@R:
+    person("lkh-cq", given = NULL, email = "lkh-cq@users.noreply.github.com", role = c("aut", "cre"))
+Author: lkh-cq [aut, cre]
+Maintainer: lkh-cq <lkh-cq@users.noreply.github.com>
+Description: A palindrome-addressed topological runtime with three-layer
+    architecture: palindrome storage, matrix computation emergence,
+    and projection view. v0.1 implements pure-R semantic correctness
+    for PAL state construction, format/parse serialization, palindrome
+    unfold/fold, jiugong grid mapping, diamond order field, frozen
+    symmetry operators (complement C, central inversion Sigma), and
+    validation. Zero external dependencies. v0.1.1 hardens serialization
+    against arbitrary code execution (was eval(parse()) in v0.1.0).
+License: MIT + file LICENSE
+Encoding: UTF-8
+RoxygenNote: 7.3.2
+Config/testthat/edition: 3
+Suggests:
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown
