@@ -19,7 +19,7 @@ test_that("closure of S_0 (1x1 center only, padded? no—must be 3x3)", {
 
 test_that("closure of asymmetric matrix is recurse", {
   M <- s4_grid()
-  M[1, 1] <- "Z"  # breaks central inversion symmetry (mirror is (3,3)="A")
+  M[1, 1] <- "D"  # breaks central inversion symmetry (mirror is (3,3)="A")
   expect_equal(closure_jiugong(M), "recurse")
 })
 
@@ -30,6 +30,27 @@ test_that("closure of orbit-rotated matrix is closed (Python-verified)", {
 
 test_that("closure rejects non-3x3", {
   expect_error(closure_jiugong(matrix(1:4, 2, 2)), "3x3")
+})
+
+test_that("closure rejects non-canonical symbols (spec hole)", {
+  # Frozen symbols are A/B/C/D/e (+ stripped markers a/b/c/d from gamma)
+  weird <- matrix(c("X", "Y", "Z", "W", "q", "W", "Z", "Y", "X"), 3, 3, byrow = TRUE)
+  expect_equal(closure_jiugong(weird), "transient")
+})
+
+test_that("closure rejects empty-string symbols", {
+  empty <- matrix(c("", "", "", "", "e", "", "", "", ""), 3, 3, byrow = TRUE)
+  expect_equal(closure_jiugong(empty), "transient")
+})
+
+test_that("closure rejects NA cells", {
+  na_grid <- matrix(c("A", "B", "C", "D", NA, "D", "C", "B", "A"), 3, 3, byrow = TRUE)
+  expect_equal(closure_jiugong(na_grid), "transient")
+})
+
+test_that("closure accepts gamma output (stripped markers a/b/c/d)", {
+  g <- gamma_field(new_pal_state(c("A", "B", "C", "D"), "e"))
+  expect_equal(closure_jiugong(g), "closed")
 })
 
 test_that("identity operator preserves matrix", {

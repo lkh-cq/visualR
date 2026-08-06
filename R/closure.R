@@ -28,6 +28,16 @@ closure_jiugong <- function(grid) {
     stop("`grid` must be a 3x3 matrix.", call. = FALSE)
   }
 
+  # 0) Symbol legality: every non-NA cell must be a frozen symbol
+  #    (A/B/C/D/e) OR a lowercased stripped marker (a/b/c/d — from
+  #    gamma_field output). Anything else is not a valid jiugong
+  #    working state -> transient (cannot be stored).
+  frozen <- c("A", "B", "C", "D", "e", "a", "b", "c", "d")
+  vals <- as.vector(grid)
+  if (any(!vals %in% frozen)) {
+    return("transient")
+  }
+
   # 1) Central inversion symmetry check (Sigma^2 = I)
   for (r in 1:3) {
     for (c in 1:3) {
