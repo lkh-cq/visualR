@@ -49,3 +49,7 @@ jobs:
       - name: Concurrency invariant (1 core == N cores)
         shell: bash
         run: Rscript tests/ci-concurrency.R
+
+      - name: Post-install smoke probe (5-step boundary diagnostic)
+        shell: bash
+        run: Rscript tests/ci-windows-probe.R
