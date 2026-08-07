@@ -18,6 +18,8 @@
 #' @description THE single carrier-dispatch entry point. All computation
 #'   entry points (pal_pipe, batch_compute, interact) must go through
 #'   this function so a given pal state always materializes identically.
+#'   v0.2.2 (P0-2): the carrier generator comes FROM the resolved
+#'   mapping pack (pack$carrier_fn), not a hard-coded global.
 #' @param pal a visualr_pal object
 #' @param carrier single character: "auto" (default), "canonical_jiugong",
 #'   "gamma_local", or "carrier_11x11"
@@ -30,6 +32,8 @@ materialize <- function(pal, carrier = "auto") {
   if (!is.character(carrier) || length(carrier) != 1L) {
     stop("`carrier` must be a single character.", call. = FALSE)
   }
+
+  pack <- pal_resolve_pack(pal)   # v0.2.2: authority = resolved pack
 
   resolved <- carrier
   grid <- NULL
@@ -54,7 +58,14 @@ materialize <- function(pal, carrier = "auto") {
     grid <- tryCatch(gamma_field(pal), error = function(e) NULL)
     if (is.null(grid)) ok <- FALSE
   } else if (carrier == "carrier_11x11") {
-    grid <- tryCatch(carrier_11x11(), error = function(e) NULL)
+    # v0.2.2 (P0-2): use the pack's carrier_fn, not a global hard-call
+    if (!is.null(pack$carrier_fn)) {
+      grid <- tryCatch(pack$carrier_fn(), error = function(e) NULL)
+    } else {
+      stop(sprintf(
+        "Mapping pack '%s' has no carrier_fn; carrier 'carrier_11x11' unavailable (fail closed).",
+        pack$id), call. = FALSE)
+    }
     if (is.null(grid)) ok <- FALSE
   } else {
     stop(sprintf("Unknown carrier: '%s'. Choose auto/canonical_jiugong/gamma_local/carrier_11x11.",

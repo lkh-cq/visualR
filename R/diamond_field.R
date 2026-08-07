@@ -22,6 +22,21 @@
 #' diamond_at(new_pal_state(c("A","B","C","D"), "e"), 0, 0)
 diamond_at <- function(pal, x, y) {
   validate_pal(pal)
+  # v0.2.2 (P1): hard parameter-domain validation — x/y must be
+  # integer-like scalars, finite, non-NA.
+  check_offset <- function(v, nm) {
+    if (!is.numeric(v) || length(v) != 1L || is.na(v) || !is.finite(v)) {
+      stop(sprintf("`%s` must be a single finite numeric value.", nm),
+           call. = FALSE)
+    }
+    if (v != floor(v)) {
+      stop(sprintf("`%s` must be integer-like (got %s).", nm, v),
+           call. = FALSE)
+    }
+    as.integer(v)
+  }
+  x <- check_offset(x, "x")
+  y <- check_offset(y, "y")
   n <- length(pal$shells)
   if (abs(x) + abs(y) > n) return(NA_integer_)
   as.integer(n - abs(x) - abs(y))

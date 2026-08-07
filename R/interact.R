@@ -51,7 +51,16 @@ pal_pipe <- function(x, op = "identity", carrier = "auto", verbose = TRUE) {
   }
   expanded <- m$grid
 
-  # 3) compute (emergence operator, snapshot-commit)
+  # 3) compute — typed dispatch (P0-3, v0.2.2): operators are defined
+  #    per carrier SHAPE. carrier_11x11 is currently a materializable
+  #    view only (no 11x11 operator ABI exists yet); compute entry
+  #    points require a 3x3 carrier. Fail with a clear typed error
+  #    instead of a confusing "grid must be 3x3" downstream.
+  if (!identical(dim(expanded), c(3L, 3L))) {
+    stop(sprintf(
+      "Carrier '%s' materialized to %dx%d, but operators are defined for 3x3 carriers only (typed dispatch, P0-3). Use carrier=\"auto\" or a 3x3 carrier.",
+      m$carrier, nrow(expanded), ncol(expanded)), call. = FALSE)
+  }
   computed <- compute_jiugong(expanded, op, mapping_pack_id = pal$mapping_pack_id)
 
   # 4) closure FACT + scheduling ACTION (P0-5: separated)

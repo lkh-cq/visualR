@@ -76,16 +76,18 @@ test_that("Inv3: jiugong_to_pal(pal_to_jiugong(S_4)) == S_4 (R9)", {
   expect_equal(result$core, pal$core)
 })
 
-test_that("Inv3: jiugong_to_pal(pal_to_jiugong(S_0)) == S_0 (R10)", {
+test_that("Inv3: square view round-trips S_0 (R10, v0.2.2)", {
   pal <- pal_fixture_n0()
-  result <- jiugong_to_pal(pal_to_jiugong(pal))
+  v <- pal_to_square_view(pal)
+  result <- fold_pal(as.vector(t(v$grid)), mapping_pack_id = pal$mapping_pack_id)
   expect_equal(result$shells, pal$shells)
   expect_equal(result$core, pal$core)
 })
 
-test_that("Inv3: jiugong_to_pal(pal_to_jiugong(S_12)) == S_12 (R11)", {
+test_that("Inv3: square view round-trips S_12 (R11, v0.2.2)", {
   pal <- pal_fixture_n12()
-  result <- jiugong_to_pal(pal_to_jiugong(pal))
+  v <- pal_to_square_view(pal)
+  result <- fold_pal(as.vector(t(v$grid)), mapping_pack_id = pal$mapping_pack_id)
   expect_equal(result$shells, pal$shells)
   expect_equal(result$core, pal$core)
 })
@@ -197,16 +199,21 @@ test_that("Jiugong only works for perfect-square unfold lengths (R20)", {
   square_ns <- c(0, 4, 12)
   non_square_ns <- c(1, 2, 3, 5)
 
-  for (n in square_ns) {
+  # v0.2.2 (P1): jiugong is strictly S_4 -> 3x3; only n=4 succeeds.
+  # Other perfect-square lengths use pal_to_square_view.
+  for (n in c(0, 4, 12)) {
     shells <- LETTERS[seq_len(n)]
     if (n == 0) shells <- character(0)
     pal <- new_pal_state(shells = shells, core = "Z")
-    result <- tryCatch(
-      pal_to_jiugong(pal),
-      error = function(e) e
-    )
-    expect_false(inherits(result, "error"),
-                 info = paste("n =", n, "should work"))
+    if (n == 4) {
+      expect_true(inherits(pal_to_jiugong(pal), "visualr_jiugong"),
+                  info = paste("n =", n, "should work"))
+    } else {
+      expect_error(pal_to_jiugong(pal),
+                   info = paste("n =", n, "should fail (not S_4)"))
+      expect_true(is.list(pal_to_square_view(pal)),
+                  info = paste("n =", n, "square view should work"))
+    }
   }
 
   for (n in non_square_ns) {

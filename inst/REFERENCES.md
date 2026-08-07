@@ -107,3 +107,32 @@ All P0 fixed in v0.2.1:
 P1 items (parallel in Imports, operator ABI overwrite guard, ncores NA
 guard, ASCII-only source, Rd sync) also landed. Remaining P1: lazy
 diamond, NAMESPACE roxygen unification, CI matrix, release isolation.
+
+## v0.2.2 P0 completion (2026-08-07)
+
+Second six-role audit: B+ / Experimental Runtime Candidate. Three new
+P0 blockers fixed:
+
+- P0-1 FULL pack hash: pack_hash() now digests the complete rule
+  surface — id, version, orbit_table (full content incl. coordinates),
+  expand_order, complement_table (content), frozen_symbols, carrier_fn
+  (deparsed), gamma_rule (deparsed), local_center_transform
+  (deparsed), closure_policy (content). assert_pack() recomputes the
+  canonical hash on EVERY resolve_mapping_pack() and FAILS CLOSED on
+  mismatch (implemented, not doc-only).
+- P0-2 pack drives ALL mappings: materialize("carrier_11x11") calls
+  pack$carrier_fn; gamma_field honors pack$gamma_rule and
+  pack$local_center_transform (pal-jiugong pack chooses tolower;
+  custom packs may choose identity); pal_resolve_pack() is the single
+  authority at every computation entry.
+- P0-3 typed carrier dispatch: operators are defined per carrier
+  SHAPE. Non-3x3 carriers (11x11) are materializable VIEWS only;
+  compute entry points fail with a clear typed error instead of a
+  confusing "grid must be 3x3" downstream.
+
+P1 landed: operator ABI enforced at registration (probe) and call
+time (return validated: matrix, 3x3, character); diamond_at offset
+domain validation; pal_to_jiugong STRICTLY S_4 -> 3x3 (new
+pal_to_square_view for general perfect-square projections); GitHub
+Actions CI matrix (Linux/Windows/macOS x release/oldrel/devel) with
+1-core == N-core invariant check.

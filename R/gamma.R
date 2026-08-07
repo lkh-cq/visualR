@@ -31,6 +31,19 @@
 #' gamma_field(new_pal_state(c("A","B","C","D"), "e"))
 gamma_field <- function(pal) {
   validate_pal(pal)
+  pack <- pal_resolve_pack(pal)   # v0.2.2 (P0-2): authority = resolved pack
+
+  # If the pack defines a custom gamma_rule, the pack is the sole
+  # authority for Gamma materialization.
+  if (!is.null(pack$gamma_rule)) {
+    G <- pack$gamma_rule(pal)
+    if (!is.matrix(G) || nrow(G) != 3L || ncol(G) != 3L) {
+      stop("pack$gamma_rule must return a 3x3 matrix (fail closed).",
+           call. = FALSE)
+    }
+    return(G)
+  }
+
   shells <- pal$shells
   n <- length(shells)
   if (n == 0L) {
@@ -45,8 +58,12 @@ gamma_field <- function(pal) {
       d <- abs(i - 2L) + abs(j - 2L)        # Manhattan distance to center
       depth <- max(n + 1L - d, 1L)          # order, floor at outermost shell
       if (depth == n + 1L) {
-        # center: lowercased core = stripped/local-center marker
-        G[i, j] <- tolower(pal$core)
+        # center transform comes FROM the pack (v0.2.2 P0-2):
+        #   default = identity; a custom local_center_transform is the
+        #   pack's choice (lowercasing is an experimental candidate,
+        #   not a frozen axiom -- P0-7).
+        tf <- pack$local_center_transform
+        G[i, j] <- if (is.null(tf)) pal$core else tf(pal$core)
       } else {
         G[i, j] <- path[depth]
       }

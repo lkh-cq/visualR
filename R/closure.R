@@ -165,7 +165,18 @@ compute_jiugong <- function(grid, op = "identity",
          call. = FALSE)
   }
   # Operators receive (grid, pack) so they use pack rules, not globals
-  fn(grid, pack)
+  out <- fn(grid, pack)
+  # v0.2.2 (P1): enforce the operator contract at call time too
+  # (a registered op could still misbehave on non-canonical input).
+  if (!is.matrix(out) || nrow(out) != 3L || ncol(out) != 3L) {
+    stop(sprintf("Operator '%s' returned %s, not a 3x3 matrix (contract violated).",
+                 op, paste(dim(out), collapse = "x")), call. = FALSE)
+  }
+  if (is.numeric(out) || is.logical(out)) {
+    stop(sprintf("Operator '%s' returned a %s matrix; character required (contract violated).",
+                 op, typeof(out)), call. = FALSE)
+  }
+  out
 }
 
 #' @title Register a custom emergence operator
@@ -197,6 +208,22 @@ register_operator <- function(name, fn, overwrite = FALSE) {
   fmls <- names(formals(fn))
   if (length(fmls) < 2L && !("..." %in% fmls)) {
     stop("Operator ABI: fn must accept (grid, pack).", call. = FALSE)
+  }
+  # v0.2.2 (P1): probe the operator once with a canonical grid to
+  # validate its contract at registration time.
+  probe <- matrix(c("A","B","C","D","e","D","C","B","A"), 3, 3, byrow = TRUE)
+  pack <- resolve_mapping_pack(DEFAULT_MAPPING_PACK_ID)
+  out <- tryCatch(fn(probe, pack), error = function(e) {
+    stop(sprintf("Operator '%s' probe failed: %s", name, conditionMessage(e)),
+         call. = FALSE)
+  })
+  if (!is.matrix(out) || nrow(out) != 3L || ncol(out) != 3L) {
+    stop(sprintf("Operator '%s' must return a 3x3 matrix (probe returned %s).",
+                 name, paste(dim(out), collapse = "x")), call. = FALSE)
+  }
+  if (is.numeric(out) || is.logical(out)) {
+    stop(sprintf("Operator '%s' must return a character 3x3 matrix (got %s).",
+                 name, typeof(out)), call. = FALSE)
   }
   .visualR_operator_env[[name]] <- fn
   invisible(NULL)

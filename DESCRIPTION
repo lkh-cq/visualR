@@ -1,7 +1,7 @@
 Package: visualR
 Type: Package
 Title: Palindrome-Addressed Topological Runtime
-Version: 0.2.1
+Version: 0.2.2
 Date: 2026-08-07
 Authors@R:
     person("lkh-cq", given = NULL, email = "lkh-cq@users.noreply.github.com", role = c("aut", "cre"))
@@ -12,15 +12,22 @@ Description: A palindrome-addressed topological runtime with three-layer
     and projection view. Pure-R semantic correctness for PAL state
     construction, format/parse serialization, palindrome unfold/fold,
     jiugong grid mapping, diamond order field, frozen symmetry
-    operators, and validation. v0.1.1 hardens serialization against
+    operations, and validation. v0.1.1 hardens serialization against
     arbitrary code execution. v0.2 adds palindrome grammar interop,
     closure gate, emergence operators, Gamma generator, peel chain,
     S_5 carrier (experimental), and R interactive+concurrent layer
     (pal_pipe / batch_compute / interact). v0.2.1 Semantic Hardening:
     mapping-pack dependency injection (fail-closed), unified carrier
     dispatch, closed token domain, closure fact / transition policy
-    separation. R interactive-concurrent is the benchmark; Python
-    mapping_pack.py is glue/cross-validation only.
+    separation. v0.2.2 P0 completion: full-content pack hash with
+    assert_pack on resolve (fail closed on tamper), pack drives ALL
+    mappings (gamma_rule / local_center_transform / carrier_fn), typed
+    carrier dispatch (non-3x3 carriers are views, not compute paths),
+    operator ABI enforced at registration and call time, strict
+    S_4-only pal_to_jiugong + general pal_to_square_view, hard offset
+    validation in diamond_at, GitHub Actions CI (Linux/Windows/macOS,
+    release/oldrel/devel). R interactive-concurrent is the benchmark;
+    Python mapping_pack.py is glue/cross-validation only.
 License: MIT + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 7.3.2

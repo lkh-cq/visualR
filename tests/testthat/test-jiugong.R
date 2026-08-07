@@ -9,19 +9,20 @@ test_that("pal_to_jiugong produces 3x3 matrix for S_4 (J1)", {
   expect_equal(dim(jg$grid), c(3L, 3L))
 })
 
-test_that("pal_to_jiugong produces 1x1 matrix for S_0 (J2)", {
+test_that("pal_to_square_view produces 1x1 for S_0 (J2, v0.2.2)", {
   pal <- pal_fixture_n0()
-  jg <- pal_to_jiugong(pal)
-  expect_s3_class(jg, "visualr_jiugong")
-  expect_equal(dim(jg$grid), c(1L, 1L))
-  expect_equal(jg$grid[1, 1], "X")
+  v <- pal_to_square_view(pal)
+  expect_equal(dim(v$grid), c(1L, 1L))
+  expect_equal(v$grid[1, 1], "X")
+  # jiugong is strictly S_4/3x3 now
+  expect_error(pal_to_jiugong(pal), "S_4 -> 3x3 mapping only")
 })
 
-test_that("pal_to_jiugong produces 5x5 matrix for S_12 (J3)", {
+test_that("pal_to_square_view produces 5x5 for S_12 (J3, v0.2.2)", {
   pal <- pal_fixture_n12()
-  jg <- pal_to_jiugong(pal)
-  expect_s3_class(jg, "visualr_jiugong")
-  expect_equal(dim(jg$grid), c(5L, 5L))
+  v <- pal_to_square_view(pal)
+  expect_equal(dim(v$grid), c(5L, 5L))
+  expect_error(pal_to_jiugong(pal), "S_4 -> 3x3 mapping only")
 })
 
 test_that("pal_to_jiugong fills row-major from unfolded palindrome (J4)", {
@@ -95,18 +96,19 @@ test_that("jiugong_to_pal round-trips S_4 (J10)", {
   expect_equal(result$core, pal$core)
 })
 
-test_that("jiugong_to_pal round-trips S_0 (J11)", {
+test_that("square view round-trips S_0 (J11, v0.2.2)", {
   pal <- pal_fixture_n0()
-  jg <- pal_to_jiugong(pal)
-  result <- jiugong_to_pal(jg)
+  v <- pal_to_square_view(pal)
+  # fold back from the square view via fold_pal
+  result <- fold_pal(as.vector(t(v$grid)), mapping_pack_id = pal$mapping_pack_id)
   expect_equal(result$shells, pal$shells)
   expect_equal(result$core, pal$core)
 })
 
-test_that("jiugong_to_pal round-trips S_12 (J12)", {
+test_that("square view round-trips S_12 (J12, v0.2.2)", {
   pal <- pal_fixture_n12()
-  jg <- pal_to_jiugong(pal)
-  result <- jiugong_to_pal(jg)
+  v <- pal_to_square_view(pal)
+  result <- fold_pal(as.vector(t(v$grid)), mapping_pack_id = pal$mapping_pack_id)
   expect_equal(result$shells, pal$shells)
   expect_equal(result$core, pal$core)
 })
