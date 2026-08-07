@@ -36,16 +36,16 @@ jobs:
         with:
           dependencies: '"all"'
 
-      - name: Probe package location
+      - name: Probe package location before build/check
         run: |
           Rscript -e '
-          cat("=== visualR package-location probe ===\n")
+          cat("=== visualR package-location probe: before build/check ===\n")
           cat("R version:", R.version.string, "\n")
           cat("OS:", .Platform$OS.type, "\n")
           cat(".libPaths():\n")
           print(.libPaths())
           visible <- requireNamespace("visualR", quietly = TRUE)
-          cat("visualR visible before build/check:", visible, "\n")
+          cat("visualR visible:", visible, "\n")
           if (visible) {
             cat("visualR path:", find.package("visualR"), "\n")
             cat("visualR version:", as.character(packageVersion("visualR")), "\n")
@@ -53,7 +53,7 @@ jobs:
             cat("visualR is NOT installed in the active library paths at this point.\n")
           }
           cat("tests/testthat.R exists:", file.exists("tests/testthat.R"), "\n")
-          cat("======================================\n")
+          cat("==========================================================\n")
           '
 
       - name: Run tests
@@ -64,6 +64,23 @@ jobs:
         run: |
           R CMD build .
           R CMD check --no-manual --as-cran visualR_*.tar.gz
+
+      - name: Probe package location after check
+        run: |
+          Rscript -e '
+          cat("=== visualR package-location probe: after R CMD check ===\n")
+          cat(".libPaths():\n")
+          print(.libPaths())
+          visible <- requireNamespace("visualR", quietly = TRUE)
+          cat("visualR visible:", visible, "\n")
+          if (visible) {
+            cat("visualR path:", find.package("visualR"), "\n")
+            cat("visualR version:", as.character(packageVersion("visualR")), "\n")
+          } else {
+            cat("visualR is NOT installed in the active library paths after R CMD check.\n")
+          }
+          cat("=======================================================\n")
+          '
 
       - name: Concurrency invariant (1 core == N cores)
         run: |
