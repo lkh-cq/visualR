@@ -75,6 +75,32 @@ format_pal <- function(pal) {
   paste(lines, collapse = "\n")
 }
 
+#' @title Resident compact representation of a pal state
+#' @description Returns the compact serialized string for a
+#'   \code{visualr_pal} — the recommended RESIDENT form for memory /
+#'   transport efficiency (v0.4.x A1). The S3 pal object carries
+#'   list+class overhead (~1344 B) that makes it LARGER than the
+#'   materialized matrix; the compact string stays small (~87 B) and
+#'   can be restored on demand with \code{parse_pal}.
+#' @details
+#'   Measure baseline (v0.4.x, R 4.5.2, 1000 states):
+#'   - resident S3 pal objects: ~1312.5 KB (0.46x vs matrix)
+#'   - resident compact strings: ~226.6 KB (2.7x smaller than matrix)
+#'   - resident matrices: ~609.4 KB
+#'
+#'   Recommended resident workflow: keep \code{pal_compact()} strings
+#'   in memory / transit; materialize to pal state (\code{parse_pal})
+#'   or matrix (\code{materialize}) only when an operator needs a
+#'   compute view. This is the "store less / expand less / move less"
+#'   pattern (DEVELOPMENT_PLAN_v0.5.0.md G1/G2).
+#' @param pal a \code{visualr_pal} object
+#' @return single character, the compact serialized form
+#' @examples
+#' pal_compact(new_pal_state(c("A","B","C","D"), "e"))
+pal_compact <- function(pal) {
+  format_pal(pal)
+}
+
 parse_pal <- function(string) {
   if (!is.character(string) || length(string) != 1) {
     stop("`string` must be a single character value.", call. = FALSE)
