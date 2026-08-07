@@ -31,3 +31,19 @@ test_that("concurrency_report reports fallback when requested cores not used", {
     expect_false(r$fallback)
   }
 })
+
+test_that("concurrency_health reports platform-correct fork support", {
+  h <- concurrency_health()
+  expect_true(all(c("platform", "fork_supported", "detect_cores",
+                    "recommended_cores", "effective_mode") %in% names(h)))
+  # fork unavailable only on Windows
+  expect_equal(h$fork_supported, .Platform$OS.type != "windows")
+  # recommended >= 1 always
+  expect_gte(h$recommended_cores, 1L)
+  # effective mode consistent with fork_supported
+  if (h$fork_supported && h$recommended_cores > 1L) {
+    expect_equal(h$effective_mode, "multicore")
+  } else {
+    expect_equal(h$effective_mode, "serial")
+  }
+})

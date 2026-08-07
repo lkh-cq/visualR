@@ -57,9 +57,9 @@ efficiency (per DEVELOPMENT_PLAN_v0.5.0.md §4). Package version still
   language-independent nested-logic contract (grammar / parse / encode
   / multi-char rule / UTF-8 hazards / test vectors, verified against R
   authority). Semantic-alignment reserve for future Java/C++ readers.
-- **B**: continue concurrency package rounds
-  (`concurrency_health()` fork check / PSOCK cluster for real Windows
-  parallelism / extract `R/concurrency.R`).
+- **B** ✅ PARTIAL (2026-08-07): `concurrency_health()` added — fork
+  availability / effective-mode report (plan §6). Remaining B: PSOCK
+  cluster for real Windows parallelism, extract `R/concurrency.R`.
 - **D1** ✅ DONE (2026-08-07):
   `inst/BENCHMARK_efficiency_gate_v040.md` — all 7 Efficiency-gate
   measurements complete (working-set / peak RAM 2.7× / transfer / encode

@@ -80,3 +80,33 @@ concurrency_report <- function(sizes = c(200L, 1000L, 5000L),
   rownames(out) <- NULL
   out
 }
+
+#' @title Concurrency health check (fork availability)
+#' @description Reports whether the current platform supports true
+#'   multi-core execution via fork (mclapply), or must fall back to
+#'   serial. This is the v0.4.x "explicit worker/fallback reporting"
+#'   companion to \code{batch_compute} (plan §6).
+#' @return list with fields: platform (OS type), fork_supported
+#'   (logical), detect_cores (total cores), recommended_cores (cores
+#'   batch_compute should use), effective_mode ("multicore"|"serial").
+#' @examples
+#' concurrency_health()
+concurrency_health <- function() {
+  platform <- .Platform$OS.type
+  # Fork (mclapply) is unavailable on Windows; available on Unix/macOS.
+  fork_supported <- (platform != "windows")
+  total <- parallel::detectCores()
+  if (is.na(total) || total < 1L) total <- 1L
+  # batch_compute default: detectCores() - 1, min 1
+  recommended <- max(1L, total - 1L)
+  # On Windows, even a "recommended > 1" silently falls back to serial,
+  # so effective mode is serial unless fork is supported and >1 core.
+  effective <- if (fork_supported && recommended > 1L) "multicore" else "serial"
+  list(
+    platform = platform,
+    fork_supported = fork_supported,
+    detect_cores = as.integer(total),
+    recommended_cores = as.integer(recommended),
+    effective_mode = effective
+  )
+}
