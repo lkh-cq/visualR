@@ -60,9 +60,11 @@ efficiency (per DEVELOPMENT_PLAN_v0.5.0.md §4). Package version still
 - **B**: continue concurrency package rounds
   (`concurrency_health()` fork check / PSOCK cluster for real Windows
   parallelism / extract `R/concurrency.R`).
-- **D1**: complete remaining Efficiency-gate measurements
-  (working-set / peak RAM / transfer / encoding-fold overhead /
-  serial latency).
+- **D1** ✅ DONE (2026-08-07):
+  `inst/BENCHMARK_efficiency_gate_v040.md` — all 7 Efficiency-gate
+  measurements complete (working-set / peak RAM 2.7× / transfer / encode
+  fold ~214-256µs / serial latency 621µs). compute_jiugong 621µs is the
+  hotspot candidate (native acceleration deferred, plan §5).
 
 ---
 
