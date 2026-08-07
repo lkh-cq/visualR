@@ -22,5 +22,5 @@ batch_compute(pals, op = "identity", carrier = "auto", ncores = NULL)
 }
 \examples{
 batch_compute(list(new_pal_state(c("A","B","C","D"), "e"),
-                   new_pal_state(c("A","B","C"), "D")), "identity")
+                   new_pal_state(c("A","B","C"), "D")), "identity", ncores = 1)
 }

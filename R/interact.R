@@ -123,7 +123,7 @@ pal_pipe <- function(x, op = "identity", carrier = "auto", verbose = TRUE) {
 #'   consistent (logical)
 #' @examples
 #' batch_compute(list(new_pal_state(c("A","B","C","D"), "e"),
-#'                    new_pal_state(c("A","B","C"), "D")), "identity")
+#'                    new_pal_state(c("A","B","C"), "D")), "identity", ncores = 1)
 batch_compute <- function(pals, op = "identity", carrier = "auto",
                           ncores = NULL) {
   if (!is.list(pals) || length(pals) == 0L) {

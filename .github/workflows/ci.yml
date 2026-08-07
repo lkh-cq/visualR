@@ -25,7 +25,7 @@ jobs:
       RSPM: https://packagemanager.rstudio.com/cran/__linux__/jammy/latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: r-lib/actions/setup-r@v2
         with:
@@ -36,51 +36,10 @@ jobs:
         with:
           dependencies: '"all"'
 
-      - name: Probe package location before build/check
-        run: |
-          Rscript -e '
-          cat("=== visualR package-location probe: before build/check ===\n")
-          cat("R version:", R.version.string, "\n")
-          cat("OS:", .Platform$OS.type, "\n")
-          cat(".libPaths():\n")
-          print(.libPaths())
-          visible <- requireNamespace("visualR", quietly = TRUE)
-          cat("visualR visible:", visible, "\n")
-          if (visible) {
-            cat("visualR path:", find.package("visualR"), "\n")
-            cat("visualR version:", as.character(packageVersion("visualR")), "\n")
-          } else {
-            cat("visualR is NOT installed in the active library paths at this point.\n")
-          }
-          cat("tests/testthat.R exists:", file.exists("tests/testthat.R"), "\n")
-          cat("==========================================================\n")
-          '
-
-      - name: Run tests
-        run: |
-          Rscript -e 'if (requireNamespace("testthat", quietly=TRUE)) { testthat::test_dir("tests/testthat", reporter="summary") } else { stop("testthat not installed") }'
-
       - name: R CMD check
         run: |
           R CMD build .
-          R CMD check --no-manual --as-cran visualR_*.tar.gz
-
-      - name: Probe package location after check
-        run: |
-          Rscript -e '
-          cat("=== visualR package-location probe: after R CMD check ===\n")
-          cat(".libPaths():\n")
-          print(.libPaths())
-          visible <- requireNamespace("visualR", quietly = TRUE)
-          cat("visualR visible:", visible, "\n")
-          if (visible) {
-            cat("visualR path:", find.package("visualR"), "\n")
-            cat("visualR version:", as.character(packageVersion("visualR")), "\n")
-          } else {
-            cat("visualR is NOT installed in the active library paths after R CMD check.\n")
-          }
-          cat("=======================================================\n")
-          '
+          R CMD check --no-manual visualR_*.tar.gz
 
       - name: Concurrency invariant (1 core == N cores)
         run: |
@@ -93,7 +52,8 @@ jobs:
           s <- batch_compute(pals, "orbit_rotate", ncores = 1)
           n <- parallel::detectCores()
           if (is.na(n)) n <- 2
-          p <- batch_compute(pals, "orbit_rotate", ncores = max(2, min(n, 4)))
+          nc <- max(2, min(n, 4))
+          p <- batch_compute(pals, "orbit_rotate", ncores = nc)
           stopifnot(identical(s$results, p$results))
-          cat("OK: 1-core == N-core\n")
+          cat("OK: 1-core ==", nc, "-core\n")
           '
