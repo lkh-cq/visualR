@@ -118,8 +118,11 @@ pal_pipe <- function(x, op = "identity", carrier = "auto", verbose = TRUE) {
 #' @param carrier single character, carrier for materialize
 #'   (default "auto": S_4 -> canonical_jiugong, else gamma_local)
 #' @param ncores integer, number of cores (default: detectCores()-1)
-#' @return list with fields: n, ncores, carrier, results (per-state
-#'   action), n_promote, n_transient, n_recurse, n_reject,
+#' @return list with fields: n, ncores (effective cores used),
+#'   requested_cores (as requested), fallback (logical: TRUE when
+#'   requested >1 core but execution fell back to serial), execution
+#'   ("serial" | "serial-fallback" | "multicore"), carrier, results
+#'   (per-state action), n_promote, n_transient, n_recurse, n_reject,
 #'   consistent (logical)
 #' @examples
 #' batch_compute(list(new_pal_state(c("A","B","C","D"), "e"),
@@ -164,12 +167,22 @@ batch_compute <- function(pals, op = "identity", carrier = "auto",
     used <- ncores
   }
 
+  # v0.4.x: report silent degradation explicitly (plan §6).
+  # A platform-specific serial fallback must be reported as a fallback,
+  # NOT as proof that a true multi-core path was exercised.
+  # fallback = requested >1 core but effective execution was serial.
+  requested_cores <- ncores
+  fallback <- (requested_cores > 1L) && (used < requested_cores)
+
   n_promote <- sum(verdicts == "promote")
   n_transient <- sum(verdicts == "transient")
   n_recurse <- sum(verdicts == "recurse")
   n_reject <- sum(verdicts == "reject")
 
-  list(n = length(pals), ncores = used, carrier = resolved_carrier,
+  list(n = length(pals), ncores = used, requested_cores = requested_cores,
+       fallback = fallback, carrier = resolved_carrier,
+       execution = if (fallback) "serial-fallback" else
+                     if (used == 1L) "serial" else "multicore",
        results = verdicts,
        n_promote = n_promote, n_transient = n_transient,
        n_recurse = n_recurse, n_reject = n_reject,

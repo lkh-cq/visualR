@@ -103,3 +103,34 @@ test_that("interact is idempotent on identity (fold-back preserves)", {
   expect_equal(x$fold_back$shells, y$fold_back$shells)
   expect_equal(x$fold_back$core, y$fold_back$core)
 })
+
+test_that("batch_compute reports silent-degradation fallback (plan §6)", {
+  pals <- rep(list(s4()), 5)
+
+  # ncores=1 (user explicitly requested serial): fallback FALSE, execution serial
+  r1 <- batch_compute(pals, "identity", ncores = 1L)
+  expect_false(r1$fallback)
+  expect_equal(r1$execution, "serial")
+  expect_equal(r1$ncores, 1L)
+  expect_equal(r1$requested_cores, 1L)
+
+  # platform forces serial fallback when >1 core requested.
+  # On real multi-core Linux, ncores=4 -> multicore, fallback FALSE.
+  # The fallback flag is TRUE only when requested >1 but used < requested.
+  # Emulate the Windows-forced-serial branch by checking the contract:
+  # If effective cores < requested, fallback must be TRUE.
+  if (.Platform$OS.type == "windows") {
+    r4 <- batch_compute(pals, "identity", ncores = 4L)
+    expect_true(r4$fallback)
+    expect_equal(r4$execution, "serial-fallback")
+    expect_equal(r4$ncores, 1L)
+    expect_equal(r4$requested_cores, 4L)
+  } else {
+    # On a real multicore platform, ncores=4 must actually use 4 cores
+    # (no silent degradation on Linux/macOS).
+    r4 <- batch_compute(pals, "identity", ncores = 4L)
+    expect_false(r4$fallback)
+    expect_equal(r4$execution, "multicore")
+    expect_equal(r4$ncores, 4L)
+  }
+})
