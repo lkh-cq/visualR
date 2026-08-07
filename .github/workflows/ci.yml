@@ -41,6 +41,9 @@ jobs:
           R CMD build .
           R CMD check --no-manual visualR_*.tar.gz
 
+      - name: Install package
+        run: R CMD INSTALL visualR_*.tar.gz
+
       - name: Concurrency invariant (1 core == N cores)
         run: |
           Rscript -e '
