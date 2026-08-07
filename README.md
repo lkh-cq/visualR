@@ -26,7 +26,7 @@ runtime for the consciousness-bus mapping layer.
    (`pal_parse`/`pal_encode`), bijective with Python reference.
 3. **Compute layer** — unfold/fold, jiugong mapping, closure fact /
    transition policy, emergence operators, Gamma generator, peel
-   chain, 11x11 carrier (experimental), unified carrier dispatch
+   chain, 11x11 carrier, unified carrier dispatch
    (`materialize`).
 
 ## Interactive + concurrent entry points
@@ -46,9 +46,12 @@ interact("{A{B{C{D{e}D}C}B}A}", "orbit_rotate")   # full loop -> compute result
   unified carrier dispatch, closed token domain, closure fact /
   transition policy separation, compute result with trace;
   experimental markers on fitted carrier/Gamma rules
+- **v0.3.0: B-Promotion** — 3 experimental markers promoted to
+  FROZEN (carrier_11x11, Gamma lowercasing, closure recurse), backed
+  by added coverage; version/metadata/lifecycle aligned
 
-783 tests, `R CMD check` clean (0 errors / 0 warnings / 0 notes).
-Pure base R + `parallel`; zero external dependencies.
+1093 test expectations, `R CMD check` clean (0 errors / 0 warnings /
+0 notes). Pure base R + `parallel`; zero external dependencies.
 
 ## License
 

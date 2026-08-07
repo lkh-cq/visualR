@@ -15,7 +15,7 @@ Description: A palindrome-addressed topological runtime with three-layer
     operations, and validation. v0.1.1 hardens serialization against
     arbitrary code execution. v0.2 adds palindrome grammar interop,
     closure gate, emergence operators, Gamma generator, peel chain,
-    S_5 carrier (experimental), and R interactive+concurrent layer
+    S_5 carrier, and R interactive+concurrent layer
     (pal_pipe / batch_compute / interact). v0.2.1 Semantic Hardening:
     mapping-pack dependency injection (fail-closed), unified carrier
     dispatch, closed token domain, closure fact / transition policy
@@ -26,8 +26,11 @@ Description: A palindrome-addressed topological runtime with three-layer
     operator ABI enforced at registration and call time, strict
     S_4-only pal_to_jiugong + general pal_to_square_view, hard offset
     validation in diamond_at, GitHub Actions CI (Linux/Windows/macOS,
-    release/oldrel/devel). R interactive-concurrent is the benchmark;
-    Python mapping_pack.py is glue/cross-validation only.
+    release/oldrel/devel). v0.3.0 B-Promotion: 3 experimental markers
+    (carrier_11x11 / Gamma lowercasing / closure recurse) promoted to
+    FROZEN with added coverage, metadata/lifecycle aligned. R
+    interactive-concurrent is the benchmark; Python mapping_pack.py is
+    glue/cross-validation only.
 License: MIT + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 7.3.2
