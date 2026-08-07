@@ -1,0 +1,62 @@
+name: visualR CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: R ${{ matrix.config.r }} / ${{ matrix.config.os }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {os: ubuntu-latest, r: 'release'}
+          - {os: windows-latest, r: 'release'}
+          - {os: macos-latest, r: 'release'}
+          - {os: ubuntu-latest, r: 'oldrel-1'}
+          - {os: ubuntu-latest, r: 'devel'}
+
+    env:
+      R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
+      RSPM: https://packagemanager.rstudio.com/cran/__linux__/jammy/latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: ${{ matrix.config.r }}
+          http-user-agent: ${{ matrix.config.http-user-agent }}
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          dependencies: '"hard"'
+
+      - name: Run tests
+        run: |
+          Rscript -e 'if (requireNamespace("testthat", quietly=TRUE)) { testthat::test_dir("tests/testthat", reporter="summary") } else { stop("testthat not installed") }'
+
+      - name: R CMD check
+        run: |
+          R CMD build .
+          R CMD check --no-manual --as-cran visualR_*.tar.gz
+
+      - name: Concurrency invariant (1 core == N cores)
+        run: |
+          Rscript -e '
+          library(visualR)
+          pals <- lapply(1:24, function(i) {
+            k <- 1 + (i %% 4)
+            new_pal_state(letters[1:k], letters[k + 1])
+          })
+          s <- batch_compute(pals, "orbit_rotate", ncores = 1)
+          n <- parallel::detectCores()
+          if (is.na(n)) n <- 2
+          p <- batch_compute(pals, "orbit_rotate", ncores = max(2, min(n, 4)))
+          stopifnot(identical(s$results, p$results))
+          cat("OK: 1-core == N-core\n")
+          '
