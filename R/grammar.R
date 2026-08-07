@@ -1,4 +1,4 @@
-# ── pal_parse / pal_encode: Layer 1 palindrome grammar (互操作层) ───
+# == pal_parse / pal_encode: Layer 1 palindrome grammar (interop layer) ==-
 # Ported from mapping_pack.py parse_palindrome/encode_palindrome.
 #
 # These functions speak the FROZEN palindrome grammar G:

@@ -1,9 +1,9 @@
-# ── unfold_pal / fold_pal: Layer 2 palindrome expand/fold ───────────
+# == unfold_pal / fold_pal: Layer 2 palindrome expand/fold ==========-
 # unfold_pal: visualr_pal -> character vector (palindrome)
 # fold_pal:   character vector (palindrome) -> visualr_pal
 #
 # Audit ruling R3: unfold is c(shells, core, rev(shells)), NOT window extraction.
-# 藏归分离: fold_pal only reads the `unfolded` parameter.
+# storage-return separation: fold_pal only reads the `unfolded` parameter.
 #           It does NOT access any hidden original pal_state object.
 # Invariant 2: fold_pal(unfold_pal(S)) == S (with default metadata)
 
@@ -33,7 +33,7 @@ fold_pal <- function(unfolded,
   }
 
   # Extract core and shells from the unfolded path ONLY
-  # 藏归分离: no access to any hidden original object
+  # storage-return separation: no access to any hidden original object
   mid <- (n + 1) %/% 2
   core <- unfolded[mid]
   shells <- if (mid == 1) character(0) else unfolded[1:(mid - 1)]

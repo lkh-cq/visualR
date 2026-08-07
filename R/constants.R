@@ -1,4 +1,4 @@
-# ── visualR frozen constants ─────────────────────────────────────────
+# == visualR frozen constants ========================================-
 # These constants define the v0.1 data contract.
 # All values are frozen per audit ruling (2026-08-06).
 

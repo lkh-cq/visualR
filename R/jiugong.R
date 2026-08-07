@@ -1,4 +1,4 @@
-# ── pal_to_jiugong / jiugong_to_pal: Layer 2 jiugong mapping ────────
+# == pal_to_jiugong / jiugong_to_pal: Layer 2 jiugong mapping ========
 # pal_to_jiugong: visualr_pal -> visualr_jiugong (k x k matrix)
 # jiugong_to_pal: visualr_jiugong -> visualr_pal
 #
@@ -56,7 +56,7 @@ jiugong_to_pal <- function(jiugong,
   )
 }
 
-# ── print method ────────────────────────────────────────────────────
+# == print method ====================================================
 
 print.visualr_jiugong <- function(x, ...) {
   k <- nrow(x$grid)

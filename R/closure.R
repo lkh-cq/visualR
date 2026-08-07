@@ -1,8 +1,8 @@
-# ── closure_jiugong / compute_jiugong: Layer 2 emergence gate ──────
+# == closure_jiugong / compute_jiugong: Layer 2 emergence gate ======
 # Ported from mapping_pack.py closure() / compute() / op_orbit_rotate().
 #
 # Emergence operator contract (frozen):
-#   Ω: M -> M, 3x3, shape_preserving
+#   Omega: M -> M, 3x3, shape_preserving
 #   All components read the SAME snapshot, then commit atomically
 #   (snapshot-commit transaction semantics, NOT multi-thread writes).
 #   Result must pass the closure gate before being written back to
@@ -29,7 +29,7 @@ closure_jiugong <- function(grid) {
   }
 
   # 0) Symbol legality: every non-NA cell must be a frozen symbol
-  #    (A/B/C/D/e) OR a lowercased stripped marker (a/b/c/d — from
+  #    (A/B/C/D/e) OR a lowercased stripped marker (a/b/c/d -- from
   #    gamma_field output). Anything else is not a valid jiugong
   #    working state -> transient (cannot be stored).
   frozen <- c("A", "B", "C", "D", "e", "a", "b", "c", "d")
@@ -74,7 +74,7 @@ closure_jiugong <- function(grid) {
 }
 
 #' @title Compute emergence operator on a 3x3 matrix
-#' @description Apply a registered emergence operator Ω: M -> M with
+#' @description Apply a registered emergence operator Omega: M -> M with
 #'   snapshot-commit transaction semantics. All components read the same
 #'   snapshot, then write atomically. The result should be checked with
 #'   \code{closure_jiugong()} before writing back to palindrome storage.
@@ -101,7 +101,7 @@ compute_jiugong <- function(grid, op = "identity") {
 }
 
 #' @title Register a custom emergence operator
-#' @description Add a shape-preserving operator Ω: 3x3 -> 3x3 to the
+#' @description Add a shape-preserving operator Omega: 3x3 -> 3x3 to the
 #'   registry. The operator must read a snapshot and commit atomically
 #'   (copy-on-modify in R gives this naturally).
 #' @param name single character, operator name
@@ -120,7 +120,7 @@ register_operator <- function(name, fn) {
   invisible(NULL)
 }
 
-# ── Package-level operator registry (module state) ───────────────────
+# == Package-level operator registry (module state) ==================-
 .visualR_operator_env <- new.env(parent = emptyenv())
 
 # identity: no change, used to verify round-trip

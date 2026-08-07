@@ -1,4 +1,4 @@
-# ── diamond_field: Layer 3 projection view ──────────────────────────
+# == diamond_field: Layer 3 projection view ==========================
 # visualr_pal -> visualr_diamond (order field)
 #
 # Audit ruling I2: output is ORDER (lambda = n - |p-c|_1), NOT distance.
@@ -38,7 +38,7 @@ diamond_field <- function(pal) {
   )
 }
 
-# ── print method ────────────────────────────────────────────────────
+# == print method ====================================================
 
 print.visualr_diamond <- function(x, ...) {
   k <- nrow(x$matrix)

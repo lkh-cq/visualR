@@ -1,13 +1,13 @@
-# ── Interactive + concurrent layer (R is the BENCHMARK) ─────────────
+# == Interactive + concurrent layer (R is the BENCHMARK) ============-
 # Frozen positioning 2026-08-07: R interactive REPL + parallel compute
 # carry the "storage -> compute -> fold-back" loop. Python is glue.
 #
-# pal_pipe()   — one-command interactive pipeline:
+# pal_pipe()   -- one-command interactive pipeline:
 #                 pal state -> expand (jiugong/carrier) -> operator
 #                 -> closure gate -> fold-back decision, human-readable
-# batch_compute() — parallel bulk computation across many pal states
+# batch_compute() -- parallel bulk computation across many pal states
 #                 (mclapply; falls back to serial when fork unavailable)
-# interact()   — full loop: new interaction state -> jiugong format
+# interact()   -- full loop: new interaction state -> jiugong format
 #                 -> fold back to meta-operator (storage-ready)
 #
 # All three are R-first: interactive by default, concurrent by design.
@@ -60,7 +60,7 @@ pal_pipe <- function(x, op = "identity", verbose = TRUE) {
   }
 
   if (verbose) {
-    cat("── pal_pipe ──────────────────────────────────────\n")
+    cat("== pal_pipe ======================================\n")
     cat("input:  ", pal_encode(pal), "\n")
     cat("expanded:\n")
     print(expanded, quote = FALSE)
@@ -72,7 +72,7 @@ pal_pipe <- function(x, op = "identity", verbose = TRUE) {
     if (foldable && !is.null(fold_back)) {
       cat("fold_back:", pal_encode(fold_back), "\n")
     }
-    cat("─────────────────────────────────────────────────\n")
+    cat("================================================-\n")
   }
 
   list(input = pal, expanded = expanded, computed = computed,
@@ -83,7 +83,7 @@ pal_pipe <- function(x, op = "identity", verbose = TRUE) {
 #' @description Apply an emergence operator to N pal states in parallel
 #'   (mclapply across available cores). Returns per-state closure
 #'   verdicts plus a consistency summary. This is the concurrent
-#'   computation entry point — R parallel is the benchmark engine.
+#'   computation entry point -- R parallel is the benchmark engine.
 #' @param pals list of visualr_pal objects
 #' @param op single character, operator name
 #' @param ncores integer, number of cores (default: detectCores()-1)

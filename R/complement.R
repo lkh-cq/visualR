@@ -1,15 +1,15 @@
-# ── complement_pal / mirror_addr: frozen symmetry operators ─────────
+# == complement_pal / mirror_addr: frozen symmetry operators ========-
 # Ported from /mnt/d/sanyuan-runtime/mapping_pack.py (2026-08-05 frozen).
 #
 # Frozen invariants (sanyuan-runtime v0.2):
 #   C^2 = I   complement is an involution (self-mirror: palindrome head==tail)
-#   Σ^2 = I   central inversion M_ij = M_(4-i,4-j) (1-indexed, 3x3)
+#   Sigma^2 = I   central inversion M_ij = M_(4-i,4-j) (1-indexed, 3x3)
 #
 # These two operators are REQUIRED by the frozen spec (complement/invert were
 # incorrectly dropped from the Trae third-party v0.1 plan; restored here).
 
-# ── Fourth-dimension fixed mapping table (user-frozen 2026-08-05) ────
-# 储存角色 | 头侧 | 端侧 | 九宫坐标对 (1-indexed)
+# == Fourth-dimension fixed mapping table (user-frozen 2026-08-05) ====
+# storage role | head | tail | jiugong coords (1-indexed)
 ORBIT_TABLE <- list(
   A = list(head = 1L, tail = 9L, addr1 = c(1L, 1L), addr2 = c(3L, 3L)),
   B = list(head = 2L, tail = 8L, addr1 = c(1L, 2L), addr2 = c(3L, 2L)),
@@ -22,14 +22,14 @@ ORBIT_TABLE <- list(
 EXPAND_ORDER <- c("e", "D", "C", "B", "A")
 
 #' @title Central inversion (mirror address)
-#' @description Frozen Σ: (r,c) -> (4-r, 4-c) in 1-indexed 3x3 jiugong.
-#'   Invariant: Σ^2 = I (applying twice returns the original address).
+#' @description Frozen Sigma: (r,c) -> (4-r, 4-c) in 1-indexed 3x3 jiugong.
+#'   Invariant: Sigma^2 = I (applying twice returns the original address).
 #' @param row integer, row coordinate (1..3)
 #' @param col integer, column coordinate (1..3)
 #' @return integer vector of length 2: c(new_row, new_col)
 #' @examples
 #' mirror_addr(1L, 1L)  # c(3, 3)
-#' mirror_addr(2L, 2L)  # c(2, 2) — center is fixed point
+#' mirror_addr(2L, 2L)  # c(2, 2) -- center is fixed point
 mirror_addr <- function(row, col) {
   if (!is.numeric(row) || !is.numeric(col) ||
       length(row) != 1 || length(col) != 1) {

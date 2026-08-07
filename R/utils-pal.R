@@ -1,4 +1,4 @@
-# ── Internal utilities (pal_ prefix, not exported) ───────────────────
+# == Internal utilities (pal_ prefix, not exported) ==================-
 # Zero external deps; all base R.
 
 # Unit separator used in serialization. Chosen because it cannot appear
@@ -7,7 +7,7 @@ PAL_SEP <- "\x1f"
 
 #' Split a string on a fixed separator, KEEPING empty strings.
 #' Unlike strsplit(), which drops trailing empty strings (strsplit("a|b|","|")
-#' -> c("a","b")), this preserves all fields — required for lossless
+#' -> c("a","b")), this preserves all fields -- required for lossless
 #' round-trip of empty-string shells/provenance values.
 #' @param s single character string
 #' @param sep single-character separator

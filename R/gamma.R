@@ -1,10 +1,10 @@
-# ── gamma_field / peel: Layer 2 Gamma generator + peel chain ────────
+# == gamma_field / peel: Layer 2 Gamma generator + peel chain ========
 # Implemented from frozen spec (README v0.2, 2026-08-05):
-#   Γ(S_k) = meta-jiugong K_k: cross -1 order, diagonal -2 order
+#   Gamma(S_k) = meta-jiugong K_k: cross -1 order, diagonal -2 order
 #   Verified against all 4 spec examples (0 mismatches):
-#     Γ(S_4)=[C D C; D e D; C D C]    Γ(S_3)=[B C B; C d C; B C B]
-#     Γ(S_2)=[A B A; B c B; A B A]    Γ(S_1)=[A A A; A b A; A A A]
-#   peel chain: S_4 -δ-> S_3 -δ-> S_2 -δ-> S_1 -δ-> S_0 (center-block fusion)
+#     Gamma(S_4)=[C D C; D e D; C D C]    Gamma(S_3)=[B C B; C d C; B C B]
+#     Gamma(S_2)=[A B A; B c B; A B A]    Gamma(S_1)=[A A A; A b A; A A A]
+#   peel chain: S_4 -delta-> S_3 -delta-> S_2 -delta-> S_1 -delta-> S_0 (center-block fusion)
 #
 # NOTE: Python mapping_pack.py does NOT yet implement peel/gamma_field
 # (README lists them as "v0.2 code pending"). This R implementation is
@@ -14,7 +14,7 @@
 #' @title Gamma generator: S_k -> meta-jiugong K_k
 #' @description Build the 3x3 meta-jiugong (local density field neighborhood)
 #'   from a pal state. Cross cells drop 1 order, diagonal cells drop 2
-#'   orders (frozen Γ rule). Center cell is the core symbol lowercased —
+#'   orders (frozen Gamma rule). Center cell is the core symbol lowercased --
 #'   the stripped marker (local center, NOT the globally isotropic
 #'   singularity; only the global center e keeps its case).
 #' @param pal a visualr_pal object
@@ -47,10 +47,10 @@ gamma_field <- function(pal) {
   G
 }
 
-#' @title Peel chain: S_n -δ-> S_{n-1}
+#' @title Peel chain: S_n -delta-> S_{n-1}
 #' @description Strip one order from a pal state: the innermost shell
 #'   becomes the new core (center-block fusion). Chain:
-#'   S_4 -δ-> S_3 -δ-> S_2 -δ-> S_1 -δ-> S_0.
+#'   S_4 -delta-> S_3 -delta-> S_2 -delta-> S_1 -delta-> S_0.
 #'   Inversely, promote() rebuilds by wrapping core back into a shell.
 #' @param pal a visualr_pal object
 #' @return a new visualr_pal with one fewer shell

@@ -1,4 +1,4 @@
-# ── new_pal_state: Layer 1 constructor ──────────────────────────────
+# == new_pal_state: Layer 1 constructor ==============================
 # Creates a visualr_pal S3 object with 4 fields.
 # Audit ruling R1: shells is character vector, any non-negative length.
 # Audit ruling R2: core is single character scalar.
@@ -42,7 +42,7 @@ new_pal_state <- function(shells, core,
   )
 }
 
-# ── print method ────────────────────────────────────────────────────
+# == print method ====================================================
 
 print.visualr_pal <- function(x, ...) {
   n <- length(x$shells)

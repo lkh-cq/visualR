@@ -1,4 +1,4 @@
-# ── carrier_11x11: S_5 neighborhood transformation carrier ─────────
+# == carrier_11x11: S_5 neighborhood transformation carrier ========-
 # Implemented from frozen spec (sanyuan-runtime v0.2, 2026-08-05).
 # Reference: references/s5-carrier-v02.md + README "11x11 carrier".
 #
@@ -13,7 +13,7 @@
 #            min(i+j, 5)            square far-corner (i+j > 6 and i != j)
 #
 # PITFALL (from verification history): center is 0-indexed (5,5),
-# NOT (6,6) — first attempt using abs(r-6) was entirely wrong.
+# NOT (6,6) -- first attempt using abs(r-6) was entirely wrong.
 #
 # Verified against the frozen spec: 0/121 mismatches (2026-08-05).
 
@@ -27,7 +27,7 @@ CARRIER_ALPHABET <- c("F", "E", "D", "C", "B", "A")  # index 1..6 -> order 0..5
 #'   SEMANTICS (frozen decision 2026-08-05): the matrix is a 2D SLICE of
 #'   the palindrome-dimension expansion. Cell value = ORDER (dimension
 #'   index) 0..5 (0 at center, increasing outward). Letters F..A are
-#'   ONLY readability placeholders for orders 0..5 — the numeric order
+#'   ONLY readability placeholders for orders 0..5 -- the numeric order
 #'   is the canonical form; letters are a display/interop layer used to
 #'   align with the frozen spec's alphabet.
 #'
@@ -85,7 +85,7 @@ carrier_order <- function(i, j) {
   s <- i + j
 
   # Rule priority (frozen spec, verified against key properties):
-  # 1) normal zone (center neighborhood): min(i+j,5) — saturates only here
+  # 1) normal zone (center neighborhood): min(i+j,5) -- saturates only here
   if (mn <= 1L) {
     return(min(s, 5L))
   }

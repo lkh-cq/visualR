@@ -1,4 +1,4 @@
-# ── format_pal / parse_pal: Layer 1 serialization ───────────────────
+# == format_pal / parse_pal: Layer 1 serialization ==================-
 # format_pal: visualr_pal -> single character string
 # parse_pal:  single character string -> visualr_pal
 # Invariant 1: parse_pal(format_pal(S)) == S
@@ -88,7 +88,7 @@ parse_pal <- function(string) {
          call. = FALSE)
   }
 
-  # ── Pure string parser: NO eval, NO parse(text=), NO code execution ──
+  # == Pure string parser: NO eval, NO parse(text=), NO code execution ==
   parse_shells <- function(line) {
     body <- sub("^shells:", "", line)
     parts <- pal_split_fixed(body, PAL_SEP)
