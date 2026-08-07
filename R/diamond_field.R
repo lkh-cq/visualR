@@ -1,9 +1,31 @@
-# == diamond_field: Layer 3 projection view ==========================
-# visualr_pal -> visualr_diamond (order field)
+# == diamond_field / diamond_at: Layer 3 projection view =============
+# visualr_pal -> order field (lambda = n - |p-c|_1), one-way.
 #
-# Audit ruling I2: output is ORDER (lambda = n - |p-c|_1), NOT distance.
+# Audit ruling I2: output is ORDER (lambda), NOT distance.
 # Single direction: no diamond_to_pal() inverse exists.
 # Diamond area: 1 + 2*n*(n+1) non-NA cells.
+#
+# v0.2.1 (P1): diamond_at() provides LAZY order lookup without
+# materializing the full field — CPU-first philosophy. diamond_field()
+# is retained as the explicit materialization entry point.
+
+#' @title Lazy order lookup at (x,y) — no field materialization
+#' @description Compute the order lambda = n - |x| - |y| at a single
+#'   point (0-indexed offset from center) without building the full
+#'   (2n+1)^2 matrix. CPU-first: the field need never be materialized.
+#' @param pal a visualr_pal object
+#' @param x integer, column offset from center (0 = center)
+#' @param y integer, row offset from center (0 = center)
+#' @return integer order (0..n), or NA if outside the diamond
+#'   (|x|+|y| > n)
+#' @examples
+#' diamond_at(new_pal_state(c("A","B","C","D"), "e"), 0, 0)
+diamond_at <- function(pal, x, y) {
+  validate_pal(pal)
+  n <- length(pal$shells)
+  if (abs(x) + abs(y) > n) return(NA_integer_)
+  as.integer(n - abs(x) - abs(y))
+}
 
 diamond_field <- function(pal) {
   validate_pal(pal)

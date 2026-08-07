@@ -181,3 +181,31 @@ test_that("matrix is numeric (D22)", {
   dm <- diamond_field(pal)
   expect_type(dm$matrix, "double")
 })
+
+# ── v0.2.1 P1: lazy diamond_at ──────────────────────────────────────
+
+test_that("diamond_at center is n", {
+  pal <- new_pal_state(c("A", "B", "C", "D"), "e")
+  expect_equal(diamond_at(pal, 0, 0), 4L)
+})
+
+test_that("diamond_at matches materialized field", {
+  pal <- new_pal_state(c("A", "B", "C", "D"), "e")
+  f <- diamond_field(pal)
+  n <- 4L
+  for (x in -4:4) {
+    for (y in -4:4) {
+      expected <- f$matrix[n + 1 + y, n + 1 + x]
+      expect_equal(diamond_at(pal, x, y),
+                   if (is.na(expected)) NA_integer_ else as.integer(expected),
+                   info = sprintf("(%d,%d)", x, y))
+    }
+  }
+})
+
+test_that("diamond_at returns NA outside diamond", {
+  pal <- new_pal_state(c("A", "B", "C", "D"), "e")
+  expect_true(is.na(diamond_at(pal, 5, 0)))
+  expect_true(is.na(diamond_at(pal, 0, 5)))
+  expect_true(is.na(diamond_at(pal, 3, 3)))
+})
