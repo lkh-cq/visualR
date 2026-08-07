@@ -1,5 +1,16 @@
 # visualR consciousness-bus mapping
 
+## Benchmark positioning (frozen 2026-08-07)
+
+**R interactive + concurrent computation is the BENCHMARK.**
+visualR is the first-class implementation of the consciousness-bus
+core. R's REPL interactivity and parallel computation carry the
+"storage → compute → fold-back" loop. Python (mapping_pack.py) is a
+GLUE/CROSS-VALIDATION implementation only — it exists to cross-check
+semantics, NOT to define the interface. The frozen spec (2026-08-05)
+is the authority; R and Python are both its implementations, with R
+interactive-concurrent as the reference.
+
 ## Three-layer architecture (藏归分离)
 
 ### Layer 1: Palindrome Storage (藏 — compressed storage)
