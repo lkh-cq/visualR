@@ -134,3 +134,26 @@ test_that("batch_compute reports silent-degradation fallback (plan §6)", {
     expect_equal(r4$ncores, 4L)
   }
 })
+
+test_that("batch_compute is deterministic: N-core == 1-core (plan §6)", {
+  pals <- lapply(1:32, function(i) {
+    k <- 1 + (i %% 4)
+    new_pal_state(letters[1:k], letters[k + 1])
+  })
+  serial <- batch_compute(pals, "orbit_rotate", ncores = 1L)
+  nc <- min(4L, max(2L, parallel::detectCores() - 1L))
+  if (.Platform$OS.type == "windows") nc <- 2L
+  par <- batch_compute(pals, "orbit_rotate", ncores = nc)
+  # identical == same order AND same values (stable ordering + determinism)
+  expect_identical(par$results, serial$results)
+  expect_true(par$consistent)
+})
+
+test_that("batch_compute does not mutate shared state (plan §6)", {
+  p4 <- new_pal_state(c("A", "B", "C", "D"), "e")
+  pals <- rep(list(p4), 20)
+  g0 <- ls(getNamespace("visualR"), all.names = TRUE)
+  invisible(batch_compute(pals, "orbit_rotate", ncores = 2L))
+  g1 <- ls(getNamespace("visualR"), all.names = TRUE)
+  expect_identical(g0, g1)
+})
