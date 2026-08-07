@@ -47,5 +47,5 @@ jobs:
         run: R CMD INSTALL visualR_*.tar.gz
 
       - name: Concurrency invariant (1 core == N cores)
-        shell: Rscript {0}
-        run: tests/ci-concurrency.R
+        shell: bash
+        run: Rscript tests/ci-concurrency.R
