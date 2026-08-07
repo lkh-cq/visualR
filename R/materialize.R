@@ -6,7 +6,7 @@
 # Carriers:
 #   "canonical_jiugong" -- pal_to_jiugong (S_4 3x3; perfect-square only)
 #   "gamma_local"       -- gamma_field (S_k 3x3 universal)
-#   "carrier_11x11"     -- S_5 carrier (experimental, P0-7)
+#   "carrier_11x11"     -- S_5 carrier (frozen, B-promotion)
 #   "auto"              -- S_4 -> canonical_jiugong, else gamma_local
 #
 # P0-2 ruling: "auto" is the DEFAULT for interactive entry points so a

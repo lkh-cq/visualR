@@ -274,10 +274,8 @@ pal_resolve_pack <- function(pal) {
 # == Default pack bootstrap ===========================================
 
 # The frozen pal-jiugong pack (v0.2.2) is registered at package load.
-# NOTE (P0-7): carrier_11x11 is experimental (fitted from examples),
-# NOT frozen; it is attached as carrier_fn for convenience but callers
-# must not treat it as an axiom. See carrier.R for the explicit
-# experimental annotation.
+# carrier_11x11 is frozen (B-promotion 2026-08-07) and attached as
+# carrier_fn for the default pack.
 
 .onLoad <- function(libname, pkgname) {
   default_pack <- new_mapping_pack(

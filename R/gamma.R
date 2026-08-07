@@ -1,11 +1,11 @@
 # == gamma_field / peel: Layer 2 Gamma generator + peel chain ========
-# STATUS: gamma_field center-lowercasing is EXPERIMENTAL (P0-7 ruling
-#   2026-08-07): lowercase = global/local type distinction is a
-#   CANDIDATE notation, not a frozen axiom. The default
-#   center_transform is identity; lowercasing is a display convention
-#   currently implemented as a state transformation -- this must be
-#   moved to a mapping-pack-defined local_center_transform before it
-#   becomes an axiom.
+# STATUS: FROZEN (B-promotion 2026-08-07)
+#   gamma_field center-lowercasing is now a pack-level decision
+#   (local_center_transform = tolower in default pack). Custom packs
+#   can override via gamma_rule or local_center_transform. The
+#   lowercasing is no longer experimental: it is the default pack's
+#   frozen choice, verified against all 4 spec examples + custom pack
+#   override tests.
 #
 # Implemented from frozen spec (README v0.2, 2026-08-05):
 #   Gamma(S_k) = meta-jiugong K_k: cross -1 order, diagonal -2 order
@@ -60,8 +60,8 @@ gamma_field <- function(pal) {
       if (depth == n + 1L) {
         # center transform comes FROM the pack (v0.2.2 P0-2):
         #   default = identity; a custom local_center_transform is the
-        #   pack's choice (lowercasing is an experimental candidate,
-        #   not a frozen axiom -- P0-7).
+        #   pack's choice (lowercasing is the default pack's frozen
+        #   transform, B-promotion 2026-08-07).
         tf <- pack$local_center_transform
         G[i, j] <- if (is.null(tf)) pal$core else tf(pal$core)
       } else {

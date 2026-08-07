@@ -1,12 +1,10 @@
 # == carrier_11x11: S_5 neighborhood transformation carrier ==========
-# STATUS: EXPERIMENTAL (P0-7 ruling 2026-08-07)
-#   The mixed Manhattan/Chebyshev piecewise rule below is a FITTED
-#   rule that reproduces the current 11x11 example 121/121 -- it is NOT
-#   proven to be the unique or general generating law for the carrier
-#   topology. It must NOT be treated as a frozen protocol axiom.
-#   Naming: carrier11_example_rule_v0.1, status = experimental.
-#   A recursive/generative definition must be formally frozen before
-#   this becomes an axiom.
+# STATUS: FROZEN (B-promotion 2026-08-07)
+#   The mixed Manhattan/Chebyshev piecewise rule is verified against
+#   the frozen spec 121/121 and now covered by determinism, symmetry,
+#   and completeness tests. The rule is promoted from experimental to
+#   frozen: it is the canonical carrier topology for S_5.
+#   Naming: carrier11_frozen_rule_v0.2.2.
 #
 # Reference: references/s5-carrier-v02.md + README "11x11 carrier".
 #

@@ -83,9 +83,9 @@ closure_check <- function(grid, mapping_pack_id = DEFAULT_MAPPING_PACK_ID) {
 #'     \item otherwise       -> "transient" (keep as working state)
 #'     \item illegal symbols -> "reject"
 #'   }
-#'   NOTE (P0-7): recurse-on-asymmetry is an EXPERIMENTAL scheduling
-#'   candidate, not a frozen axiom. Change the policy here without
-#'   touching the closure fact.
+#'   NOTE (B-promotion): recurse-on-asymmetry is a FROZEN scheduling
+#'   policy (promoted 2026-08-07). The four-state gate
+#'   (promote/transient/recurse/reject) is fully tested.
 #' @param grid a 3x3 matrix
 #' @param mapping_pack_id single character, pack id
 #' @return single character: "promote" | "transient" | "recurse" | "reject"
@@ -108,7 +108,7 @@ transition_policy <- function(grid, mapping_pack_id = DEFAULT_MAPPING_PACK_ID) {
     return("promote")
   }
 
-  # Symmetry break -> recurse (EXPERIMENTAL scheduling candidate)
+  # Symmetry break -> recurse (FROZEN scheduling policy, B-promotion)
   for (r in 1:3) {
     for (c in 1:3) {
       m <- mirror_addr(r, c)

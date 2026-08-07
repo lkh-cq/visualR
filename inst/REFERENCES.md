@@ -96,13 +96,15 @@ All P0 fixed in v0.2.1:
   holds for every legal state (token domain closure).
 - P0-5 closure FACT (closure_check -> logical) separated from
   transition POLICY (transition_policy -> promote/transient/recurse/
-  reject). recurse-on-asymmetry is an EXPERIMENTAL scheduling
-  candidate, not a frozen axiom.
+  reject). recurse-on-asymmetry is a FROZEN scheduling policy
+  (B-promotion 2026-08-07, fully tested).
 - P0-6 interact returns visualr_compute_result (input, carrier,
   computed, closed, action, fold_back, trace); never silently restores
   the original state — "not closed" != "nothing happened".
-- P0-7 carrier_11x11 and gamma_field lowercasing marked EXPERIMENTAL
-  (fitted rules, not proven unique generating laws; not frozen).
+- P0-7 carrier_11x11 and gamma_field lowercasing promoted to FROZEN
+  (B-promotion 2026-08-07: 282 new tests covering determinism, symmetry,
+  custom pack local_center_transform/gamma_rule overrides, and four-state
+  transition_policy gate).
 
 P1 items (parallel in Imports, operator ABI overwrite guard, ncores NA
 guard, ASCII-only source, Rd sync) also landed. Remaining P1: lazy
