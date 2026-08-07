@@ -5,6 +5,14 @@ runtime for the consciousness-bus mapping layer.
 
 > Palindromic syntax stores topology; matrices materialize computation.
 
+## Development target
+
+The frozen development target is **visualR v0.5.0**:
+
+**Palindrome storage -> Jiugong/operator state -> R/CPU concurrent compute -> closure/fold-back -> compact package storage and transport.**
+
+See [`DEVELOPMENT_PLAN_v0.5.0.md`](DEVELOPMENT_PLAN_v0.5.0.md) for the authoritative development-plan baseline.
+
 ## Root contract
 
 - **PAL storage** stores the independent outer-to-inner chain and one
