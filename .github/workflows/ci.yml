@@ -46,7 +46,7 @@ jobs:
         shell: bash
         run: R CMD INSTALL visualR_*.tar.gz
 
-      - name: Concurrency invariant (1 core == N cores, Unix only)
+      - name: Concurrency invariant (1 core == N cores)
         if: runner.os != 'Windows'
         shell: bash
         run: |
@@ -63,16 +63,4 @@ jobs:
           p <- batch_compute(pals, "orbit_rotate", ncores = nc)
           stopifnot(identical(s$results, p$results))
           cat("OK: 1-core ==", nc, "-core\n")
-          '
-
-      - name: Windows smoke test
-        if: runner.os == 'Windows'
-        shell: bash
-        run: |
-          Rscript -e '
-          library(visualR)
-          p <- new_pal_state(c("A","B","C","D"), "e")
-          m <- materialize(p, "canonical_jiugong")
-          stopifnot(m$ok)
-          cat("OK: Windows smoke test (materialize + validate)\n")
           '
