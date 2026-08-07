@@ -49,13 +49,17 @@ efficiency (per DEVELOPMENT_PLAN_v0.5.0.md §4). Package version still
   (environmental, not code).
 
 ### [Planned] — open branches
-- **A1**: use `format_pal` string as resident compact representation
-  (2.7× memory advantage).
+- **A1** ✅ DONE (2026-08-07): `pal_compact()` added — format_pal
+  semantic alias as the recommended resident compact form. Resolves
+  the S3-object memory disadvantage (2.7x smaller than matrix). 1133
+  assertions, 0 fail.
+- **C1** ✅ DONE (2026-08-07): `inst/PAL_NESTED_CONTRACT.md` — frozen
+  language-independent nested-logic contract (grammar / parse / encode
+  / multi-char rule / UTF-8 hazards / test vectors, verified against R
+  authority). Semantic-alignment reserve for future Java/C++ readers.
 - **B**: continue concurrency package rounds
   (`concurrency_health()` fork check / PSOCK cluster for real Windows
   parallelism / extract `R/concurrency.R`).
-- **C1**: freeze the nesting contract as an independent portable spec
-  file (semantic-alignment reserve).
 - **D1**: complete remaining Efficiency-gate measurements
   (working-set / peak RAM / transfer / encoding-fold overhead /
   serial latency).
