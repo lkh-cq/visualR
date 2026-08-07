@@ -84,8 +84,8 @@ test_that("fold_pal only reads unfolded path [藏归分离] (U12)", {
   expect_equal(result$shells, pal_custom$shells)
   expect_equal(result$core, pal_custom$core)
 
-  # metadata should be DEFAULT, not custom — this proves藏归分离
-  expect_equal(result$mapping_pack_id, "pal-jiugong-v0.1")
+  # metadata should be DEFAULT, not custom — this proves storage-return separation
+  expect_equal(result$mapping_pack_id, "pal-jiugong-v0.2")
   expect_equal(result$provenance, list())
 })
 

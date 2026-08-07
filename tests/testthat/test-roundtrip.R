@@ -115,23 +115,26 @@ test_that("Unicode tokens in shells (R13)", {
   expect_equal(result2$core, pal$core)
 })
 
-test_that("Empty string tokens (R14)", {
-  pal <- new_pal_state(shells = c("", "A", ""), core = "")
-  result <- parse_pal(format_pal(pal))
-  expect_equal(result$shells, pal$shells)
-  expect_equal(result$core, pal$core)
+test_that("Empty string tokens rejected (R14, v0.2.1 closed token domain)", {
+  # v0.2.1: empty tokens violate the closed token domain -> rejected
+  expect_error(new_pal_state(shells = c("", "A", ""), core = "e"),
+               "non-empty")
+  expect_error(new_pal_state(shells = c("A"), core = ""),
+               "non-empty")
 })
 
-test_that("Special characters in tokens (R15)", {
-  pal <- new_pal_state(
-    shells = c("a:b", "c,d", "e\nf"),
-    core = "g:h"
-  )
-  # Note: comma is the separator in format_pal, so this tests edge case
-  # unfold/fold should still work since it doesn't use separators
-  result <- fold_pal(unfold_pal(pal))
-  expect_equal(result$shells, pal$shells)
-  expect_equal(result$core, pal$core)
+test_that("Special characters rejected (R15, v0.2.1 closed token domain)", {
+  # v0.2.1: newline/separators break serialization framing -> rejected
+  expect_error(new_pal_state(shells = c("A\nB"), core = "e"),
+               "reserved")
+  expect_error(new_pal_state(shells = c("A"), core = "X\ncore:evil"),
+               "reserved")
+  expect_error(new_pal_state(shells = c("A|B"), core = "e"),
+               "reserved")
+  expect_error(new_pal_state(shells = c("A=B"), core = "e"),
+               "reserved")
+  expect_error(new_pal_state(shells = c("{A"), core = "e"),
+               "reserved")
 })
 
 # ── Cross-layer consistency ────────────────────────────────────────

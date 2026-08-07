@@ -22,7 +22,7 @@ test_that("new_pal_state constructs arbitrary-length shells (N3)", {
 
 test_that("new_pal_state has default mapping_pack_id (N4)", {
   pal <- new_pal_state(shells = c("A"), core = "B")
-  expect_equal(pal$mapping_pack_id, "pal-jiugong-v0.1")
+  expect_equal(pal$mapping_pack_id, "pal-jiugong-v0.2")
 })
 
 test_that("new_pal_state has default provenance (N5)", {
@@ -79,12 +79,10 @@ test_that("new_pal_state rejects shells with NA (N12)", {
   )
 })
 
-test_that("new_pal_state allows empty-string core (N13)", {
-  pal <- new_pal_state(shells = c("A"), core = "")
-  expect_equal(pal$core, "")
+test_that("new_pal_state rejects empty-string core (N13, v0.2.1 closed token domain)", {
+  expect_error(new_pal_state(shells = c("A"), core = ""), "non-empty")
 })
 
-test_that("new_pal_state allows empty strings in shells (N14)", {
-  pal <- new_pal_state(shells = c("A", "", "C"), core = "E")
-  expect_equal(pal$shells, c("A", "", "C"))
+test_that("new_pal_state rejects empty strings in shells (N14, v0.2.1 closed token domain)", {
+  expect_error(new_pal_state(shells = c("A", "", "C"), core = "E"), "non-empty")
 })

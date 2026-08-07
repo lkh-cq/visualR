@@ -65,7 +65,7 @@ test_that("pal_to_jiugong inherits mapping_pack_id (J7)", {
 test_that("pal_to_jiugong default mapping_pack_id (J7b)", {
   pal <- pal_fixture_n4()
   jg <- pal_to_jiugong(pal)
-  expect_equal(jg$mapping_pack_id, "pal-jiugong-v0.1")
+  expect_equal(jg$mapping_pack_id, "pal-jiugong-v0.2")
 })
 
 test_that("grid center equals core (J8)", {

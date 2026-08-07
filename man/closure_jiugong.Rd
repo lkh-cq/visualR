@@ -2,10 +2,12 @@
 \alias{closure_jiugong}
 \title{Closure gate for a 3x3 jiugong matrix}
 \usage{
-closure_jiugong(grid)
+closure_jiugong(grid, mapping_pack_id = DEFAULT_MAPPING_PACK_ID)
 }
 \arguments{
-  \item{grid}{A 3x3 matrix (character or atomic).}
+  \item{grid}{A 3x3 matrix.}
+  \item{mapping_pack_id}{Single character, pack whose rules drive the
+    check (default: DEFAULT_MAPPING_PACK_ID).}
 }
 \value{
   Single character: \code{"closed"} | \code{"transient"} | \code{"recurse"}.

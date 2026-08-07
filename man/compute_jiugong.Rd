@@ -2,12 +2,15 @@
 \alias{compute_jiugong}
 \title{Compute emergence operator on a 3x3 matrix}
 \usage{
-compute_jiugong(grid, op = "identity")
+compute_jiugong(grid, op = "identity",
+  mapping_pack_id = DEFAULT_MAPPING_PACK_ID)
 }
 \arguments{
   \item{grid}{A 3x3 matrix.}
   \item{op}{Single character, operator name. Built-ins: \code{"identity"},
     \code{"orbit_rotate"}. Custom operators via \code{register_operator()}.}
+  \item{mapping_pack_id}{Single character, pack whose orbit table
+    drives the operator (default: DEFAULT_MAPPING_PACK_ID).}
 }
 \value{
   A 3x3 matrix (the transformed working state).

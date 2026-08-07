@@ -2,11 +2,13 @@
 \alias{register_operator}
 \title{Register a custom emergence operator}
 \usage{
-register_operator(name, fn)
+register_operator(name, fn, overwrite = FALSE)
 }
 \arguments{
   \item{name}{Single character, operator name.}
-  \item{fn}{Function taking a 3x3 matrix and returning a 3x3 matrix.}
+  \item{fn}{Function \code{function(grid, pack)} returning a 3x3 matrix.}
+  \item{overwrite}{Logical, allow overwriting a built-in.
+    Default FALSE (fail closed).}
 }
 \value{
   Invisible \code{NULL}; registers for \code{compute_jiugong()}.
@@ -17,5 +19,5 @@ register_operator(name, fn)
   (copy-on-modify in R gives this naturally).
 }
 \examples{
-register_operator("flip_diag", function(M) t(M))
+register_operator("flip_diag", function(M, pack) t(M))
 }

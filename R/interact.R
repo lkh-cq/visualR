@@ -14,18 +14,24 @@
 
 #' @title Interactive pipeline: storage -> compute -> fold-back
 #' @description One-command interactive workflow. Takes a pal state
-#'   (or grammar text), expands it, applies an emergence operator,
-#'   runs the closure gate, and reports the fold-back decision.
-#'   Designed for REPL experimentation: every step is visible.
+#'   (or grammar text), materializes it via the UNIFIED dispatch
+#'   (\code{materialize}), applies an emergence operator, checks the
+#'   closure FACT (\code{closure_check}) and derives the scheduling
+#'   ACTION (\code{transition_policy}). Designed for REPL
+#'   experimentation: every step is visible.
 #' @param x a visualr_pal object OR a palindrome grammar string
 #' @param op single character, operator name (see \code{compute_jiugong})
+#' @param carrier single character, carrier for materialize:
+#'   "auto" (default) | "canonical_jiugong" | "gamma_local" |
+#'   "carrier_11x11"
 #' @param verbose logical, print the pipeline trace. Default TRUE.
-#' @return list with fields: input, expanded (jiugong matrix),
-#'   computed (operator output), closure, foldable (logical),
-#'   fold_back (pal state if foldable, else NULL)
+#' @return list with fields: input, carrier (resolved), expanded
+#'   (working matrix), computed (operator output), closed (logical
+#'   FACT), action (promote/transient/recurse/reject), fold_back
+#'   (pal if promoted, else NULL), trace
 #' @examples
 #' pal_pipe("{A{B{C{D{e}D}C}B}A}", "orbit_rotate")
-pal_pipe <- function(x, op = "identity", verbose = TRUE) {
+pal_pipe <- function(x, op = "identity", carrier = "auto", verbose = TRUE) {
   # 1) normalize input: grammar text -> pal state
   pal <- if (inherits(x, "visualr_pal")) {
     validate_pal(x)
@@ -37,83 +43,107 @@ pal_pipe <- function(x, op = "identity", verbose = TRUE) {
          call. = FALSE)
   }
 
-  # 2) expand (storage -> working matrix).
-  #    S_4 (perfect-square unfolded length) -> canonical jiugong;
-  #    other S_k -> gamma_field 3x3 (universal working matrix).
-  expanded <- tryCatch(pal_to_jiugong(pal)$grid,
-                       error = function(e) gamma_field(pal))
+  # 2) materialize via UNIFIED dispatch (P0-2: no semantic fork)
+  m <- materialize(pal, carrier)
+  if (!m$ok) {
+    stop(sprintf("Materialization failed for carrier '%s'.", m$carrier),
+         call. = FALSE)
+  }
+  expanded <- m$grid
 
   # 3) compute (emergence operator, snapshot-commit)
-  computed <- compute_jiugong(expanded, op)
+  computed <- compute_jiugong(expanded, op, mapping_pack_id = pal$mapping_pack_id)
 
-  # 4) closure gate (fold-back decision)
-  cl <- closure_jiugong(computed)
-  foldable <- cl == "closed"
+  # 4) closure FACT + scheduling ACTION (P0-5: separated)
+  closed <- closure_check(computed, mapping_pack_id = pal$mapping_pack_id)
+  action <- transition_policy(computed, mapping_pack_id = pal$mapping_pack_id)
 
-  # 5) fold back (interaction state -> storage-ready)
+  # 5) fold back if promoted (interaction state -> storage-ready)
   fold_back <- NULL
-  if (foldable) {
+  if (action == "promote" && closed) {
     jg <- structure(list(grid = computed,
                          mapping_pack_id = pal$mapping_pack_id),
                     class = "visualr_jiugong")
     fold_back <- tryCatch(jiugong_to_pal(jg), error = function(e) NULL)
   }
 
+  trace <- list(
+    input = pal_encode(pal),
+    carrier = m$carrier,
+    operator = op,
+    closed = closed,
+    action = action
+  )
+
   if (verbose) {
     cat("== pal_pipe ======================================\n")
-    cat("input:  ", pal_encode(pal), "\n")
+    cat("input:  ", pal_encode(pal), "\n", sep = "")
+    cat(sprintf("carrier: %s\n", m$carrier))
     cat("expanded:\n")
     print(expanded, quote = FALSE)
     cat(sprintf("operator: %s\n", op))
     cat("computed:\n")
     print(computed, quote = FALSE)
-    cat(sprintf("closure: %s\n", cl))
-    cat(sprintf("foldable: %s\n", foldable))
-    if (foldable && !is.null(fold_back)) {
+    cat(sprintf("closure FACT: %s\n", closed))
+    cat(sprintf("action: %s\n", action))
+    if (!is.null(fold_back)) {
       cat("fold_back:", pal_encode(fold_back), "\n")
+    } else {
+      cat("fold_back: (none -- state remains in working memory)\n")
     }
     cat("================================================-\n")
   }
 
-  list(input = pal, expanded = expanded, computed = computed,
-       closure = cl, foldable = foldable, fold_back = fold_back)
+  list(input = pal, carrier = m$carrier, expanded = expanded,
+       computed = computed, closed = closed, action = action,
+       fold_back = fold_back, trace = trace)
 }
 
 #' @title Parallel bulk computation across many pal states
 #' @description Apply an emergence operator to N pal states in parallel
-#'   (mclapply across available cores). Returns per-state closure
-#'   verdicts plus a consistency summary. This is the concurrent
-#'   computation entry point -- R parallel is the benchmark engine.
+#'   (mclapply across available cores) through the UNIFIED materialize
+#'   dispatch. Returns per-state closure verdicts plus a consistency
+#'   summary. R parallel is the benchmark engine.
 #' @param pals list of visualr_pal objects
 #' @param op single character, operator name
+#' @param carrier single character, carrier for materialize
+#'   (default "auto": S_4 -> canonical_jiugong, else gamma_local)
 #' @param ncores integer, number of cores (default: detectCores()-1)
-#' @return list with fields: n, ncores, results (per-state closure),
-#'   n_closed, n_transient, n_recurse, consistent (logical)
+#' @return list with fields: n, ncores, carrier, results (per-state
+#'   action), n_promote, n_transient, n_recurse, n_reject,
+#'   consistent (logical)
 #' @examples
 #' batch_compute(list(new_pal_state(c("A","B","C","D"), "e"),
 #'                    new_pal_state(c("A","B","C"), "D")), "identity")
-batch_compute <- function(pals, op = "identity", ncores = NULL) {
+batch_compute <- function(pals, op = "identity", carrier = "auto",
+                          ncores = NULL) {
   if (!is.list(pals) || length(pals) == 0L) {
     stop("`pals` must be a non-empty list of visualr_pal objects.", call. = FALSE)
   }
   for (p in pals) validate_pal(p)
 
   if (is.null(ncores)) {
-    ncores <- max(1L, parallel::detectCores() - 1L)
+    ncores <- parallel::detectCores()
+    if (is.na(ncores) || ncores < 1L) ncores <- 1L
+    ncores <- ncores - 1L
+    if (ncores < 1L) ncores <- 1L
   }
   ncores <- as.integer(ncores)
   if (ncores < 1L) stop("`ncores` must be >= 1.", call. = FALSE)
 
-  # Expand all states first (pure, fork-safe).
-  # gamma_field gives a 3x3 working matrix for ANY S_k (S_1+);
-  # pal_to_jiugong is S_4 3x3-specific (perfect-square unfolded length),
-  # so it cannot serve arbitrary shell depths.
-  grids <- lapply(pals, function(p) gamma_field(p))
+  # Materialize all states via UNIFIED dispatch (P0-2: no semantic fork)
+  mats <- lapply(pals, function(p) materialize(p, carrier))
+  if (any(!vapply(mats, function(m) m$ok, logical(1)))) {
+    stop("Materialization failed for at least one pal state.", call. = FALSE)
+  }
+  grids <- lapply(mats, function(m) m$grid)
+  resolved_carrier <- mats[[1]]$carrier
 
   work <- function(i) {
     g <- grids[[i]]
-    out <- compute_jiugong(g, op)
-    closure_jiugong(out)
+    pid <- pals[[i]]$mapping_pack_id
+    out <- compute_jiugong(g, op, mapping_pack_id = pid)
+    transition_policy(out, mapping_pack_id = pid)
   }
 
   if (ncores == 1L || .Platform$OS.type == "windows") {
@@ -125,14 +155,16 @@ batch_compute <- function(pals, op = "identity", ncores = NULL) {
     used <- ncores
   }
 
-  n_closed <- sum(verdicts == "closed")
+  n_promote <- sum(verdicts == "promote")
   n_transient <- sum(verdicts == "transient")
   n_recurse <- sum(verdicts == "recurse")
+  n_reject <- sum(verdicts == "reject")
 
-  list(n = length(pals), ncores = used,
+  list(n = length(pals), ncores = used, carrier = resolved_carrier,
        results = verdicts,
-       n_closed = n_closed, n_transient = n_transient, n_recurse = n_recurse,
-       consistent = (n_closed + n_transient + n_recurse) == length(pals))
+       n_promote = n_promote, n_transient = n_transient,
+       n_recurse = n_recurse, n_reject = n_reject,
+       consistent = (n_promote + n_transient + n_recurse + n_reject) == length(pals))
 }
 
 #' @title Full interaction loop: new state -> jiugong -> meta-operator
@@ -140,17 +172,47 @@ batch_compute <- function(pals, op = "identity", ncores = NULL) {
 #'   state from a pal, render it as jiugong, and fold it back to a
 #'   storage-ready meta-operator state. Demonstrates the whole
 #'   "storage -> compute -> fold-back" loop in one command.
+#'
+#'   v0.2.1 (P0-6): NEVER silently discards computation. "Not closed"
+#'   does NOT mean "nothing happened". Returns a
+#'   \code{visualr_compute_result} carrying input, carrier, computed,
+#'   closure fact, next action and trace.
 #' @param x a visualr_pal or grammar string
 #' @param op single character, operator name
-#' @return visualr_pal: the fold-back result (storage-ready) if the
-#'   computed state is closed; otherwise the original pal unchanged
+#' @return \code{visualr_compute_result} with fields: input, carrier,
+#'   computed, closed (logical fact), action (promote/transient/recurse/
+#'   reject), fold_back (pal if promoted, else NULL), trace
 #' @examples
 #' interact("{A{B{C{D{e}D}C}B}A}", "orbit_rotate")
 interact <- function(x, op = "identity") {
   res <- pal_pipe(x, op, verbose = FALSE)
-  if (res$foldable && !is.null(res$fold_back)) {
-    res$fold_back
+
+  action <- res$action
+  fold_back <- if (action == "promote") res$fold_back else NULL
+
+  structure(
+    list(
+      input = res$input,
+      carrier = res$carrier,
+      computed = res$computed,
+      closed = res$closed,
+      action = action,
+      fold_back = fold_back,
+      trace = res$trace
+    ),
+    class = "visualr_compute_result"
+  )
+}
+
+#' @export
+print.visualr_compute_result <- function(x, ...) {
+  cat("<visualr_compute_result> action=", x$action,
+      " closed=", x$closed, " carrier=", x$carrier, "\n", sep = "")
+  cat("  input: ", pal_encode(x$input), "\n", sep = "")
+  if (!is.null(x$fold_back)) {
+    cat("  fold_back: ", pal_encode(x$fold_back), "\n", sep = "")
   } else {
-    res$input
+    cat("  fold_back: (none -- state remains in working memory)\n")
   }
+  invisible(x)
 }

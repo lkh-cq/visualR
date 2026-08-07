@@ -2,16 +2,18 @@
 \alias{batch_compute}
 \title{Parallel bulk computation across many pal states}
 \usage{
-batch_compute(pals, op = "identity", ncores = NULL)
+batch_compute(pals, op = "identity", carrier = "auto", ncores = NULL)
 }
 \arguments{
   \item{pals}{List of \code{visualr_pal} objects.}
   \item{op}{Single character, operator name.}
+  \item{carrier}{Single character, carrier for materialize
+    (default "auto": S_4 -> canonical_jiugong, else gamma_local).}
   \item{ncores}{Integer, number of cores (default: detectCores()-1).}
 }
 \value{
-  List: n, ncores, results (per-state closure), n_closed, n_transient,
-  n_recurse, consistent (logical).
+  List: n, ncores, carrier, results (per-state action), n_promote,
+  n_transient, n_recurse, n_reject, consistent (logical).
 }
 \description{
   Apply an emergence operator to N pal states in parallel (mclapply

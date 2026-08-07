@@ -8,30 +8,11 @@
 new_pal_state <- function(shells, core,
                           mapping_pack_id = DEFAULT_MAPPING_PACK_ID,
                           provenance = list()) {
-  # Validate shells (R1: character vector, any length, no NA)
-  if (!is.character(shells)) {
-    stop("`shells` must be a character vector.", call. = FALSE)
-  }
-  if (anyNA(shells)) {
-    stop("`shells` must not contain NA values.", call. = FALSE)
-  }
-
-  # Validate core (R2: single character scalar, no NA)
-  if (!is.character(core) || length(core) != 1 || is.na(core)) {
-    stop("`core` must be a single non-NA character value.", call. = FALSE)
-  }
-
-  # Validate mapping_pack_id (R7: versioned string)
-  if (!is.character(mapping_pack_id) || length(mapping_pack_id) != 1 || is.na(mapping_pack_id)) {
-    stop("`mapping_pack_id` must be a single non-NA character value.", call. = FALSE)
-  }
-
-  # Validate provenance
-  if (!is.list(provenance)) {
-    stop("`provenance` must be a list.", call. = FALSE)
-  }
-
-  structure(
+  # v0.2.1: constructor delegates ALL invariant checks to validate_pal
+  # (single source of truth). This closes the token domain at
+  # construction time — newline/separator/empty tokens are rejected
+  # here, before they can ever enter serialization or grammar.
+  obj <- structure(
     list(
       shells = shells,
       core = core,
@@ -40,6 +21,8 @@ new_pal_state <- function(shells, core,
     ),
     class = CLASS_PAL
   )
+  validate_pal(obj)
+  obj
 }
 
 # == print method ====================================================

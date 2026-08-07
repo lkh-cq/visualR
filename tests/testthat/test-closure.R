@@ -80,7 +80,7 @@ test_that("compute rejects non-matrix", {
 })
 
 test_that("register_operator adds custom operator", {
-  register_operator("flip_diag", function(M) t(M))
+  register_operator("flip_diag", function(M, pack) t(M))
   M <- s4_grid()
   out <- compute_jiugong(M, "flip_diag")
   expect_equal(out[1, 3], "C")  # transposed: (1,3) was (3,1)="C"
@@ -88,7 +88,7 @@ test_that("register_operator adds custom operator", {
 })
 
 test_that("register_operator validates inputs", {
-  expect_error(register_operator("", function(M) M), "non-empty")
+  expect_error(register_operator("", function(M, pack) M), "non-empty")
   expect_error(register_operator("x", "not-a-fn"), "function")
 })
 

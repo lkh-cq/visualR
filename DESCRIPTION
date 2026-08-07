@@ -1,24 +1,32 @@
 Package: visualR
 Type: Package
 Title: Palindrome-Addressed Topological Runtime
-Version: 0.2.0
-Date: 2026-08-06
+Version: 0.2.1
+Date: 2026-08-07
 Authors@R:
     person("lkh-cq", given = NULL, email = "lkh-cq@users.noreply.github.com", role = c("aut", "cre"))
 Author: lkh-cq [aut, cre]
 Maintainer: lkh-cq <lkh-cq@users.noreply.github.com>
 Description: A palindrome-addressed topological runtime with three-layer
     architecture: palindrome storage, matrix computation emergence,
-    and projection view. v0.1 implements pure-R semantic correctness
-    for PAL state construction, format/parse serialization, palindrome
-    unfold/fold, jiugong grid mapping, diamond order field, frozen
-    symmetry operators (complement C, central inversion Sigma), and
-    validation. Zero external dependencies. v0.1.1 hardens serialization
-    against arbitrary code execution (was eval(parse()) in v0.1.0).
+    and projection view. Pure-R semantic correctness for PAL state
+    construction, format/parse serialization, palindrome unfold/fold,
+    jiugong grid mapping, diamond order field, frozen symmetry
+    operators, and validation. v0.1.1 hardens serialization against
+    arbitrary code execution. v0.2 adds palindrome grammar interop,
+    closure gate, emergence operators, Gamma generator, peel chain,
+    S_5 carrier (experimental), and R interactive+concurrent layer
+    (pal_pipe / batch_compute / interact). v0.2.1 Semantic Hardening:
+    mapping-pack dependency injection (fail-closed), unified carrier
+    dispatch, closed token domain, closure fact / transition policy
+    separation. R interactive-concurrent is the benchmark; Python
+    mapping_pack.py is glue/cross-validation only.
 License: MIT + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 7.3.2
 Config/testthat/edition: 3
+Imports:
+    parallel
 Suggests:
     testthat (>= 3.0.0),
     knitr,

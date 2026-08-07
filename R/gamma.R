@@ -1,4 +1,12 @@
 # == gamma_field / peel: Layer 2 Gamma generator + peel chain ========
+# STATUS: gamma_field center-lowercasing is EXPERIMENTAL (P0-7 ruling
+#   2026-08-07): lowercase = global/local type distinction is a
+#   CANDIDATE notation, not a frozen axiom. The default
+#   center_transform is identity; lowercasing is a display convention
+#   currently implemented as a state transformation -- this must be
+#   moved to a mapping-pack-defined local_center_transform before it
+#   becomes an axiom.
+#
 # Implemented from frozen spec (README v0.2, 2026-08-05):
 #   Gamma(S_k) = meta-jiugong K_k: cross -1 order, diagonal -2 order
 #   Verified against all 4 spec examples (0 mismatches):

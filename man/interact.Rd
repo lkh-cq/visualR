@@ -9,8 +9,10 @@ interact(x, op = "identity")
   \item{op}{Single character, operator name.}
 }
 \value{
-  \code{visualr_pal}: the fold-back result (storage-ready) if the
-  computed state is closed; otherwise the original pal unchanged.
+  \code{visualr_compute_result} with fields: input, carrier, computed,
+  closed (logical fact), action (promote/transient/recurse/reject),
+  fold_back (pal if promoted, else NULL), trace. Never silently
+  discards computation (P0-6).
 }
 \description{
   The complete fold-back closure: compute a new interaction state from

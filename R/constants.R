@@ -3,7 +3,7 @@
 # All values are frozen per audit ruling (2026-08-06).
 
 # Default mapping pack identifier (R7: versioned string, not integer)
-DEFAULT_MAPPING_PACK_ID <- "pal-jiugong-v0.1"
+DEFAULT_MAPPING_PACK_ID <- "pal-jiugong-v0.2"
 
 # Serialization format header
 # v0.1 = deprecated eval(parse()) format (RCE vulnerable)

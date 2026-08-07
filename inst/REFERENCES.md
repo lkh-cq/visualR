@@ -74,3 +74,36 @@ The consciousness-bus ρ+θ=1 dual-engine maps to runtime states:
 
 This mapping is deferred to v0.2 `visualr_runtime_state`.
 v0.1 does NOT implement numerical ρ/θ conservation checks.
+
+## v0.2.1 Semantic Hardening (2026-08-07)
+
+Six-role specialist audit (B- rating) found 7 P0 blockers before merge.
+All P0 fixed in v0.2.1:
+
+- P0-1 mapping_pack_id now DRIVES runtime rules via new_mapping_pack /
+  register_mapping_pack / resolve_mapping_pack; unknown id, duplicate
+  registration, and hash mismatch all FAIL CLOSED. Root principle: the
+  mapping pack is the authoritative basis for all storage-computation
+  mappings.
+- P0-2 unified carrier dispatch: materialize(pal, carrier) is the ONLY
+  entry; pal_pipe / batch_compute / interact share it (no semantic
+  fork between entry points).
+- P0-3 closed token domain: validate_pal rejects empty tokens, newline,
+  and reserved separators (\x1f | = { }); constructor delegates to
+  validate_pal (single source of truth). Multi-char role tokens are
+  legal and round-trip through the grammar.
+- P0-4 serialization round-trip hardened: parse_pal(format_pal(S)) == S
+  holds for every legal state (token domain closure).
+- P0-5 closure FACT (closure_check -> logical) separated from
+  transition POLICY (transition_policy -> promote/transient/recurse/
+  reject). recurse-on-asymmetry is an EXPERIMENTAL scheduling
+  candidate, not a frozen axiom.
+- P0-6 interact returns visualr_compute_result (input, carrier,
+  computed, closed, action, fold_back, trace); never silently restores
+  the original state — "not closed" != "nothing happened".
+- P0-7 carrier_11x11 and gamma_field lowercasing marked EXPERIMENTAL
+  (fitted rules, not proven unique generating laws; not frozen).
+
+P1 items (parallel in Imports, operator ABI overwrite guard, ncores NA
+guard, ASCII-only source, Rd sync) also landed. Remaining P1: lazy
+diamond, NAMESPACE roxygen unification, CI matrix, release isolation.

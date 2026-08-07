@@ -24,7 +24,7 @@ test_that("format_pal includes core (F3)", {
 test_that("format_pal includes mapping_pack_id (F4)", {
   pal <- pal_fixture_n4()
   result <- format_pal(pal)
-  expect_true(grepl("pal-jiugong-v0.1", result, fixed = TRUE))
+  expect_true(grepl("pal-jiugong-v0.2", result, fixed = TRUE))
 })
 
 test_that("format_pal handles empty shells (F5)", {

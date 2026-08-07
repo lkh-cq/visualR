@@ -56,14 +56,18 @@ pal_parse <- function(text, mapping_pack_id = DEFAULT_MAPPING_PACK_ID,
     sym <- paste(chars[start:(pos - 1L)], collapse = "")
     if (pos <= n && chars[pos] == "{") {
       inner <- parse_node()
-      # Symmetry check: after inner, must be sym again, then }
-      if (pos > n || chars[pos] != sym) {
+      # Symmetry check: after inner, must be sym again (multi-char safe),
+      # then }
+      sym_len <- nchar(sym)
+      if (pos + sym_len - 1L > n ||
+          paste(chars[pos:(pos + sym_len - 1L)], collapse = "") != sym) {
         stop(sprintf("Position %d: expected symmetric symbol '%s'.",
                      pos, sym), call. = FALSE)
       }
-      pos <<- pos + 1L
+      pos <<- pos + sym_len
       if (pos > n || chars[pos] != "}") {
-        stop(sprintf("Position %d: expected '}'.", pos), call. = FALSE)
+        stop(sprintf("Position %d: expected '}' after symmetric symbol.", pos),
+             call. = FALSE)
       }
       pos <<- pos + 1L
       return(c(sym, inner, sym))
