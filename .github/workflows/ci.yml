@@ -36,6 +36,26 @@ jobs:
         with:
           dependencies: '"all"'
 
+      - name: Probe package location
+        run: |
+          Rscript -e '
+          cat("=== visualR package-location probe ===\n")
+          cat("R version:", R.version.string, "\n")
+          cat("OS:", .Platform$OS.type, "\n")
+          cat(".libPaths():\n")
+          print(.libPaths())
+          visible <- requireNamespace("visualR", quietly = TRUE)
+          cat("visualR visible before build/check:", visible, "\n")
+          if (visible) {
+            cat("visualR path:", find.package("visualR"), "\n")
+            cat("visualR version:", as.character(packageVersion("visualR")), "\n")
+          } else {
+            cat("visualR is NOT installed in the active library paths at this point.\n")
+          }
+          cat("tests/testthat.R exists:", file.exists("tests/testthat.R"), "\n")
+          cat("======================================\n")
+          '
+
       - name: Run tests
         run: |
           Rscript -e 'if (requireNamespace("testthat", quietly=TRUE)) { testthat::test_dir("tests/testthat", reporter="summary") } else { stop("testthat not installed") }'
