@@ -82,3 +82,207 @@ benchmark_storage <- function() {
   rownames(out) <- NULL
   out
 }
+# == benchmark_transfer: v0.5.0 Efficiency-gate #3 (transfer size) ========
+# Measures the compact transport unit (PAL serialized) vs the expanded
+# working view, plus the rawConnection round-trip cost.  Pure measurement;
+# no semantic changes.
+
+#' @title Benchmark transfer size (PAL transport unit vs expanded)
+#' @description Measures the byte payload that must cross a transport
+#'   boundary to reconstruct the canonical state, comparing the compact
+#'   PAL form against the expanded materialized matrix, per dimension
+#'   S1..S5.  Returns a reproducible data.frame.
+#' @return data.frame with columns: dim, pal_transfer_bytes,
+#'   matrix_transfer_bytes, transfer_reduction.
+#' @examples
+#' benchmark_transfer()
+benchmark_transfer <- function() {
+  defs <- list(
+    S1 = list(shells = character(0), core = "A"),
+    S2 = list(shells = "A", core = "b"),
+    S3 = list(shells = c("A", "B"), core = "c"),
+    S4 = list(shells = c("A", "B", "C", "D"), core = "e"),
+    S5 = list(shells = c("A", "B", "C", "D", "E"), core = "f")
+  )
+  ser_size <- function(x) {
+    con <- rawConnection(raw(0), "w")
+    serialize(x, con)
+    n <- length(rawConnectionValue(con))
+    close(con)
+    as.numeric(n)
+  }
+  rows <- lapply(names(defs), function(nm) {
+    d <- defs[[nm]]
+    pal <- new_pal_state(d$shells, d$core)
+    pal_bytes <- ser_size(format_pal(pal))
+    if (nm == "S5") {
+      mx <- carrier_11x11()
+    } else {
+      m <- materialize(pal)
+      if (!m$ok) {
+        return(data.frame(dim = nm, pal_transfer_bytes = pal_bytes,
+                          matrix_transfer_bytes = NA_real_,
+                          transfer_reduction = NA_real_))
+      }
+      mx <- m$grid
+    }
+    mx_bytes <- ser_size(mx)
+    data.frame(dim = nm, pal_transfer_bytes = pal_bytes,
+               matrix_transfer_bytes = mx_bytes,
+               transfer_reduction = mx_bytes / pal_bytes)
+  })
+  out <- do.call(rbind, rows)
+  rownames(out) <- NULL
+  out
+}
+
+# == benchmark_peak_ram: v0.5.0 Efficiency-gate #4 (peak RAM) =============
+# Approximates peak memory of the expanded working view vs the compact
+# PAL object using R's internal object.size().  Documented limitation:
+# object.size is a static estimate, not a heap-profiler measurement; the
+# reproducible claim is the *ratio* between representations, not absolute
+# process RSS.
+
+#' @title Benchmark peak RAM (object size estimate)
+#' @description Static object-size estimate of the compact PAL object vs
+#'   the materialized matrix working view, per dimension S1..S5.
+#' @return data.frame with columns: dim, pal_object_bytes,
+#'   matrix_object_bytes, ram_reduction.
+#' @examples
+#' benchmark_peak_ram()
+benchmark_peak_ram <- function() {
+  defs <- list(
+    S1 = list(shells = character(0), core = "A"),
+    S2 = list(shells = "A", core = "b"),
+    S3 = list(shells = c("A", "B"), core = "c"),
+    S4 = list(shells = c("A", "B", "C", "D"), core = "e"),
+    S5 = list(shells = c("A", "B", "C", "D", "E"), core = "f")
+  )
+  rows <- lapply(names(defs), function(nm) {
+    d <- defs[[nm]]
+    pal <- new_pal_state(d$shells, d$core)
+    pal_bytes <- as.numeric(object.size(pal))
+    if (nm == "S5") {
+      mx <- carrier_11x11()
+    } else {
+      m <- materialize(pal)
+      if (!m$ok) {
+        return(data.frame(dim = nm, pal_object_bytes = pal_bytes,
+                          matrix_object_bytes = NA_real_,
+                          ram_reduction = NA_real_))
+      }
+      mx <- m$grid
+    }
+    mx_bytes <- as.numeric(object.size(mx))
+    data.frame(dim = nm, pal_object_bytes = pal_bytes,
+               matrix_object_bytes = mx_bytes,
+               ram_reduction = mx_bytes / pal_bytes)
+  })
+  out <- do.call(rbind, rows)
+  rownames(out) <- NULL
+  out
+}
+
+# == benchmark_overhead: v0.5.0 Efficiency-gate #5 (encode/expand/fold) ====
+# Measures the wall-clock cost of the three transform steps:
+#   encode (PAL -> pal object), expand (materialize), fold (jiugong_to_pal).
+# Uses system.time; runs `reps` iterations and reports median elapsed.
+# Pure timing harness; no semantic logic.
+
+#' @title Benchmark encoding/expansion/fold overhead
+#' @description Median wall-clock seconds per transform step across
+#'   representative dimensions.  Timing is platform-dependent; the claim
+#'   is relative cost per step, not absolute speed.
+#' @param reps integer, iterations per measurement (default 200).
+#' @return data.frame with columns: dim, encode_ms, expand_ms, fold_ms.
+#' @examples
+#' benchmark_overhead(reps = 50)
+benchmark_overhead <- function(reps = 200L) {
+  defs <- list(
+    S2 = list(shells = "A", core = "b"),
+    S3 = list(shells = c("A", "B"), core = "c"),
+    S4 = list(shells = c("A", "B", "C", "D"), core = "e")
+  )
+  med_ms <- function(x) as.numeric(median(x) * 1000)
+  rows <- lapply(names(defs), function(nm) {
+    d <- defs[[nm]]
+    enc <- numeric(reps); exp <- numeric(reps); fold <- numeric(reps)
+    for (i in seq_len(reps)) {
+      enc[i] <- system.time(p <- new_pal_state(d$shells, d$core))[["elapsed"]]
+      exp[i] <- system.time(m <- materialize(p))[["elapsed"]]
+      if (m$ok) {
+        fold[i] <- system.time(closure_check(m$grid))[["elapsed"]]
+      } else {
+        fold[i] <- NA_real_
+      }
+    }
+    data.frame(dim = nm, encode_ms = med_ms(enc),
+               expand_ms = med_ms(exp), fold_ms = med_ms(fold))
+  })
+  out <- do.call(rbind, rows)
+  rownames(out) <- NULL
+  out
+}
+
+# == benchmark_latency: v0.5.0 Efficiency-gate #6 (serial latency) ========
+# Single-core reference latency: full round-trip (encode -> expand ->
+# closure -> fold-back) in one measurement.
+
+#' @title Benchmark serial round-trip latency
+#' @description Median wall-clock seconds for the complete
+#'   encode->expand->closure->fold round trip on a single core.
+#' @param reps integer, iterations (default 100).
+#' @return data.frame with columns: dim, roundtrip_ms.
+#' @examples
+#' benchmark_latency(reps = 50)
+benchmark_latency <- function(reps = 100L) {
+  defs <- list(
+    S2 = list(shells = "A", core = "b"),
+    S3 = list(shells = c("A", "B"), core = "c"),
+    S4 = list(shells = c("A", "B", "C", "D"), core = "e")
+  )
+  rows <- lapply(names(defs), function(nm) {
+    d <- defs[[nm]]
+    tms <- numeric(reps)
+    for (i in seq_len(reps)) {
+      tms[i] <- system.time({
+        p <- new_pal_state(d$shells, d$core)
+        m <- materialize(p)
+        if (m$ok) closure_check(m$grid)
+      })[["elapsed"]]
+    }
+    data.frame(dim = nm, roundtrip_ms = as.numeric(median(tms) * 1000))
+  })
+  out <- do.call(rbind, rows)
+  rownames(out) <- NULL
+  out
+}
+
+# == benchmark_throughput: v0.5.0 Efficiency-gate #7 (concurrent) ========
+# Measures concurrent compute throughput relative to serial for a fixed
+# batch of S4 palindromes through batch_compute().  Uses the package's
+# own concurrency machinery; reports workers actually used.
+
+#' @title Benchmark concurrent throughput
+#' @description Batch round-trip throughput for a fixed workload, serial
+#'   vs concurrent, using batch_compute().  Reports the effective worker
+#'   count from concurrency_health() so the claim is reproducible.
+#' @param n integer, batch size (default 400).
+#' @return data.frame with columns: mode, n, elapsed_ms, throughput_per_s.
+#' @examples
+#' benchmark_throughput(n = 100)
+benchmark_throughput <- function(n = 400L) {
+  pals <- replicate(n, new_pal_state(c("A", "B", "C", "D"), "e"),
+                    simplify = FALSE)
+  h <- concurrency_health()
+  workers <- h$effective_workers
+  t_serial <- system.time(res_s <- lapply(pals, materialize))[["elapsed"]]
+  t_conc <- system.time(res_c <- batch_compute(pals, op = "identity"))[["elapsed"]]
+  data.frame(
+    mode = c("serial", "concurrent"),
+    n = c(n, n),
+    elapsed_ms = c(t_serial * 1000, t_conc * 1000),
+    throughput_per_s = c(n / t_serial, n / t_conc),
+    effective_workers = c(1L, workers)
+  )
+}
