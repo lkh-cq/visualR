@@ -97,6 +97,44 @@ test_that("batch_compute reports closure distribution", {
   expect_equal(res$n, 2L)
 })
 
+test_that("batch_compute engine parameter resolves correctly", {
+  pals <- lapply(1:20, function(i) {
+    k <- 1 + (i %% 4)
+    new_pal_state(letters[1:k], letters[k + 1])
+  })
+  # serial engine always reports serial execution
+  r_ser <- batch_compute(pals, "identity", ncores = 1L, engine = "serial")
+  expect_equal(r_ser$execution, "serial")
+  expect_equal(r_ser$engine, "serial")
+  expect_false(r_ser$fallback)
+
+  # multicore engine on Linux/macOS -> multicore; on Windows -> serial-fallback
+  r_mc <- batch_compute(pals, "identity", ncores = 2L, engine = "multicore")
+  if (.Platform$OS.type == "windows") {
+    expect_equal(r_mc$execution, "serial-fallback")
+    expect_true(r_mc$fallback)
+  } else {
+    expect_equal(r_mc$execution, "multicore")
+    expect_false(r_mc$fallback)
+  }
+  expect_equal(r_mc$engine, "multicore")
+})
+
+test_that("batch_compute psock engine produces identical results to serial", {
+  skip_on_cran()  # PSOCK cluster + serialization is slow under CRAN checks
+  pals <- lapply(1:24, function(i) {
+    k <- 1 + (i %% 4)
+    new_pal_state(letters[1:k], letters[k + 1])
+  })
+  serial <- batch_compute(pals, "orbit_rotate", ncores = 1L, engine = "serial")
+  psock <- batch_compute(pals, "orbit_rotate", ncores = 2L, engine = "psock")
+  expect_equal(psock$execution, "psock")
+  expect_false(psock$fallback)
+  expect_equal(serial$results, psock$results)
+  expect_equal(serial$n_promote, psock$n_promote)
+  expect_true(psock$consistent)
+})
+
 test_that("interact is idempotent on identity (fold-back preserves)", {
   x <- interact(s4(), "identity")
   y <- interact(x$fold_back, "identity")

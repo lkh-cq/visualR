@@ -118,17 +118,24 @@ pal_pipe <- function(x, op = "identity", carrier = "auto", verbose = TRUE) {
 #' @param carrier single character, carrier for materialize
 #'   (default "auto": S_4 -> canonical_jiugong, else gamma_local)
 #' @param ncores integer, number of cores (default: detectCores()-1)
+#' @param engine character, concurrency engine: "auto" (default:
+#'   multicore on Unix, psock on Windows), "multicore" (mclapply,
+#'   Unix only -- falls back to serial on Windows), "psock" (PSOCK
+#'   cluster, works everywhere), or "serial". Never silently degrades:
+#'   the effective engine is always reported in the return value.
 #' @return list with fields: n, ncores (effective cores used),
 #'   requested_cores (as requested), fallback (logical: TRUE when
 #'   requested >1 core but execution fell back to serial), execution
-#'   ("serial" | "serial-fallback" | "multicore"), carrier, results
-#'   (per-state action), n_promote, n_transient, n_recurse, n_reject,
-#'   consistent (logical)
+#'   ("serial" | "serial-fallback" | "multicore" | "psock"), engine
+#'   (requested engine), carrier, results (per-state action),
+#'   n_promote, n_transient, n_recurse, n_reject, consistent (logical)
 #' @examples
 #' batch_compute(list(new_pal_state(c("A","B","C","D"), "e"),
 #'                    new_pal_state(c("A","B","C"), "D")), "identity", ncores = 1)
 batch_compute <- function(pals, op = "identity", carrier = "auto",
-                          ncores = NULL) {
+                          ncores = NULL, engine = c("auto", "multicore",
+                                                    "psock", "serial")) {
+  engine <- match.arg(engine)
   if (!is.list(pals) || length(pals) == 0L) {
     stop("`pals` must be a non-empty list of visualr_pal objects.", call. = FALSE)
   }
@@ -150,18 +157,42 @@ batch_compute <- function(pals, op = "identity", carrier = "auto",
   }
   grids <- lapply(mats, function(m) m$grid)
   resolved_carrier <- mats[[1]]$carrier
+  ids <- vapply(pals, function(p) p$mapping_pack_id, character(1))
 
   work <- function(i) {
-    g <- grids[[i]]
-    pid <- pals[[i]]$mapping_pack_id
-    out <- compute_jiugong(g, op, mapping_pack_id = pid)
-    transition_policy(out, mapping_pack_id = pid)
+    out <- compute_jiugong(grids[[i]], op, mapping_pack_id = ids[i])
+    transition_policy(out, mapping_pack_id = ids[i])
   }
 
-  if (ncores == 1L || .Platform$OS.type == "windows") {
+  # Resolve the effective engine (never silent):
+  #   user "serial"              -> serial
+  #   user "multicore" on Unix   -> mclapply
+  #   user "multicore" on Win    -> serial fallback (reported)
+  #   user "psock"               -> PSOCK cluster
+  #   user "auto": Unix -> multicore, Windows -> psock
+  is_win <- .Platform$OS.type == "windows"
+  requested_engine <- engine
+  effective <- switch(engine,
+    serial = "serial",
+    multicore = if (is_win) "serial-fallback" else "multicore",
+    psock = "psock",
+    auto = if (is_win) "psock" else "multicore"
+  )
+
+  if (ncores == 1L || effective == "serial" || effective == "serial-fallback") {
     verdicts <- vapply(seq_along(grids), work, character(1L))
     used <- 1L
-  } else {
+  } else if (effective == "psock") {
+    cl <- parallel::makePSOCKcluster(ncores)
+    on.exit(parallel::stopCluster(cl), add = TRUE)
+    parallel::clusterEvalQ(cl, library(visualR))
+    parallel::clusterExport(cl, c("grids", "ids", "op"), envir = environment())
+    verdicts <- unlist(parallel::parLapply(cl, seq_along(grids), function(i) {
+      out <- compute_jiugong(grids[[i]], op, mapping_pack_id = ids[i])
+      transition_policy(out, mapping_pack_id = ids[i])
+    }))
+    used <- ncores
+  } else { # multicore
     verdicts <- unlist(parallel::mclapply(seq_along(grids), work,
                                           mc.cores = ncores))
     used <- ncores
@@ -174,15 +205,19 @@ batch_compute <- function(pals, op = "identity", carrier = "auto",
   requested_cores <- ncores
   fallback <- (requested_cores > 1L) && (used < requested_cores)
 
+  # execution reports the ACTUAL execution path (ncores==1 degrades to
+  # serial even when the platform engine would be multicore/psock);
+  # engine reports the REQUESTED engine (never silent).
+  actual_execution <- if (used == 1L) "serial" else effective
+
   n_promote <- sum(verdicts == "promote")
   n_transient <- sum(verdicts == "transient")
   n_recurse <- sum(verdicts == "recurse")
   n_reject <- sum(verdicts == "reject")
 
   list(n = length(pals), ncores = used, requested_cores = requested_cores,
-       fallback = fallback, carrier = resolved_carrier,
-       execution = if (fallback) "serial-fallback" else
-                     if (used == 1L) "serial" else "multicore",
+       fallback = fallback, engine = requested_engine, carrier = resolved_carrier,
+       execution = actual_execution,
        results = verdicts,
        n_promote = n_promote, n_transient = n_transient,
        n_recurse = n_recurse, n_reject = n_reject,
