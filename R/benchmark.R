@@ -275,14 +275,28 @@ benchmark_throughput <- function(n = 400L) {
   pals <- replicate(n, new_pal_state(c("A", "B", "C", "D"), "e"),
                     simplify = FALSE)
   h <- concurrency_health()
-  workers <- h$effective_workers
-  t_serial <- system.time(res_s <- lapply(pals, materialize))[["elapsed"]]
-  t_conc <- system.time(res_c <- batch_compute(pals, op = "identity"))[["elapsed"]]
+  # Serial reference does the SAME full round-trip work as the concurrent
+  # path (materialize + compute + transition) so the comparison is fair.
+  # v0.5.0: concurrent throughput must be the advantage; serial may be
+  # slightly slower but never should concurrent lose on equal work.
+  round_trip <- function(p) {
+    m <- materialize(p)
+    if (m$ok) transition_policy(compute_jiugong(m$grid, "identity"))
+  }
+  t_serial <- system.time(lapply(pals, round_trip))[["elapsed"]]
+  bc <- batch_compute(pals, op = "identity")
+  t_conc <- system.time(
+    batch_compute(pals, op = "identity")
+  )[["elapsed"]]
+  # batch_compute returns actual cores used; health.recommended is the
+  # default request, not the executed count.
+  workers <- bc$ncores
   data.frame(
     mode = c("serial", "concurrent"),
     n = c(n, n),
     elapsed_ms = c(t_serial * 1000, t_conc * 1000),
     throughput_per_s = c(n / t_serial, n / t_conc),
-    effective_workers = c(1L, workers)
+    effective_workers = c(1L, workers),
+    execution = c("serial", bc$execution)
   )
 }

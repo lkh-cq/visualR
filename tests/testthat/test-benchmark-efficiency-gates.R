@@ -66,7 +66,32 @@ test_that("benchmark_throughput returns serial+concurrent rows", {
   expect_equal(nrow(b), 2L)
   expect_equal(b$mode, c("serial", "concurrent"))
   expect_true(all(c("mode", "n", "elapsed_ms", "throughput_per_s",
-                    "effective_workers") %in% names(b)))
+                    "effective_workers", "execution") %in% names(b)))
   expect_true(all(b$n == 10L))
   expect_true(all(b$elapsed_ms >= 0))
+})
+
+test_that("benchmark_throughput concurrent reports actual workers", {
+  b <- benchmark_throughput(n = 10)
+  # On a multi-core Unix host, concurrent must report >1 workers and
+  # multicore execution; on single-core / CRAN it may legitimately be 1.
+  h <- concurrency_health()
+  if (h$detect_cores > 1L) {
+    expect_true(b[b$mode == "concurrent", "effective_workers"] >= 2L)
+    expect_true(b[b$mode == "concurrent", "execution"] %in%
+                  c("multicore", "psock"))
+  }
+})
+
+test_that("benchmark_throughput concurrent is not slower on equal work (large batch)", {
+  # Concurrent must be the advantage on meaningful workload: serial may be
+  # slightly slower, but concurrent never loses on equal full round-trip
+  # work. Use a batch big enough to amortize mclapply scheduling.
+  b <- benchmark_throughput(n = 2000)
+  s <- b[b$mode == "serial", "throughput_per_s"]
+  c <- b[b$mode == "concurrent", "throughput_per_s"]
+  h <- concurrency_health()
+  if (h$detect_cores > 1L) {
+    expect_gt(c, s)
+  }
 })
