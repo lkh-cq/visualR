@@ -57,9 +57,12 @@ efficiency (per DEVELOPMENT_PLAN_v0.5.0.md §4). Package version 0.4.0.
   language-independent nested-logic contract (grammar / parse / encode
   / multi-char rule / UTF-8 hazards / test vectors, verified against R
   authority). Semantic-alignment reserve for future Java/C++ readers.
-- **B** ✅ PARTIAL (2026-08-07): `concurrency_health()` added — fork
-  availability / effective-mode report (plan §6). Remaining B: PSOCK
-  cluster for real Windows parallelism, extract `R/concurrency.R`.
+- **B** ✅ DONE (2026-08-08): `concurrency_health()` fork/effective-mode
+  report (plan §6) + **PSOCK engine** (`engine` param on batch_compute)
+  for true Windows parallelism. PSOCK measured 1.6-3.85× speedup on
+  PAL tasks (beats mclapply 0.85-2.07×). `execution` reports actual
+  path, `engine` reports requested (never silent). `on.exit(stopCluster)`
+  guards leak; R CMD check clean.
 - **D1** ✅ DONE (2026-08-07):
   `inst/BENCHMARK_efficiency_gate_v040.md` — all 7 Efficiency-gate
   measurements complete (working-set / peak RAM 2.7× / transfer / encode
