@@ -6,11 +6,11 @@ most recent first. Statuses: `[Added]`, `[Changed]`, `[Fixed]`,
 
 ---
 
-## [v0.4.x] — in progress (2026-08-07)
+## [v0.4.0] — released (2026-08-07)
 
-v0.4.x proves compactness + CPU deterministic concurrency + transport
-efficiency (per DEVELOPMENT_PLAN_v0.5.0.md §4). Package version still
-0.3.0 until the v0.4.x baseline is frozen.
+v0.4.0 proves compactness + CPU deterministic concurrency + transport
+efficiency (per DEVELOPMENT_PLAN_v0.5.0.md §4). Package version 0.4.0.
+**Frozen baseline.**
 
 ### [Added] — measurement infrastructure
 - `benchmark_storage()` — reproducible stored/transport-bytes harness

@@ -57,8 +57,15 @@ interact("{A{B{C{D{e}D}C}B}A}", "orbit_rotate")   # full loop -> compute result
 - **v0.3.0: B-Promotion** — 3 experimental markers promoted to
   FROZEN (carrier_11x11, Gamma lowercasing, closure recurse), backed
   by added coverage; version/metadata/lifecycle aligned
+- **v0.4.0: Compactness + Deterministic Concurrency Proof** — frozen
+  baseline with reproducible measurement infrastructure:
+  `benchmark_storage()` (stored bytes), `concurrency_report()`
+  (throughput), `concurrency_health()` (fork/effective-mode),
+  `pal_compact()` (resident compact form). All 7 Efficiency-gate
+  measurements published. Cross-language nested-logic contract
+  (`inst/PAL_NESTED_CONTRACT.md`) reserved for future readers.
 
-1093 test expectations, `R CMD check` clean (0 errors / 0 warnings /
+1137 test expectations, `R CMD check` clean (0 errors / 0 warnings /
 0 notes). Pure base R + `parallel`; zero external dependencies.
 
 ## License
