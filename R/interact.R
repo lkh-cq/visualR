@@ -205,10 +205,12 @@ batch_compute <- function(pals, op = "identity", carrier = "auto",
   requested_cores <- ncores
   fallback <- (requested_cores > 1L) && (used < requested_cores)
 
-  # execution reports the ACTUAL execution path (ncores==1 degrades to
-  # serial even when the platform engine would be multicore/psock);
-  # engine reports the REQUESTED engine (never silent).
-  actual_execution <- if (used == 1L) "serial" else effective
+  # execution reports the ACTUAL execution path. When the platform
+  # engine resolved to a serial fallback (engine="multicore" on
+  # Windows), report "serial-fallback" so the caller knows the request
+  # was degraded. Only a plain ncores==1 serial run reports "serial".
+  actual_execution <- if (effective == "serial-fallback") "serial-fallback"
+                      else if (used == 1L) "serial" else effective
 
   n_promote <- sum(verdicts == "promote")
   n_transient <- sum(verdicts == "transient")
