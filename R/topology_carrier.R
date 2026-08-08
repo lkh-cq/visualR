@@ -409,23 +409,64 @@ commit <- function(reconciled, carrier) {
 #' @title Run the full Topology Operator ABI pipeline
 #' @description One-command driver:
 #'   PAL -> TopologyCarrier -> Snapshot -> Concurrent Lanes -> Barrier
-#'   -> Reconcile -> Commit -> S_(t+1). The complete high-dimensional
-#'   operator loop, not a serial cell loop.
+#'   -> Reconcile -> Commit -> PAL re-encoding (S_(t+1)). The complete
+#'   high-dimensional operator loop, not a serial cell loop.
 #' @param pal a \code{visualr_pal} object.
-#' @param kernels optional named list of lane kernels.
+#' @param kernels optional kernel-name spec or named list of lane
+#'   kernels (default: all identity).
 #' @return list with fields: carrier_in, snapshot, deltas, barrier,
-#'   reconciled, carrier_out.
+#'   reconciled, carrier_out, pal_out (re-encoded PAL of S_(t+1)).
 #' @examples
 #' p <- new_pal_state(c("A","B","C","D"), "e")
 #' run_topology_pipeline(p)
+#' run_topology_pipeline(p, "rotate")
 run_topology_pipeline <- function(pal, kernels = NULL) {
   validate_pal(pal)
   carrier_in <- new_topology_carrier(pal)
   snap <- snapshot(carrier_in)
-  deltas <- execute_lanes(snap, kernels)
+  deltas <- execute_lanes_ops(snap, kernels)
   barrier(deltas)
   rec <- reconcile(deltas, carrier_in$cell)
   carrier_out <- commit(rec, carrier_in)
+  pal_out <- cell_to_pal(carrier_out$cell, pal)
   list(carrier_in = carrier_in, snapshot = snap, deltas = deltas,
-       barrier = TRUE, reconciled = rec, carrier_out = carrier_out)
+       barrier = TRUE, reconciled = rec, carrier_out = carrier_out,
+       pal_out = pal_out)
+}
+
+# =====================================================================
+# 8. Carrier -> PAL re-encoding (closed-loop final link)
+# =====================================================================
+
+#' @title Re-encode a reconciled cell back to a pal state
+#' @description Closes the loop: S_(t+1) cell -> canonical PAL. Orbits
+#'   are read outer-to-inner (A,B,C,D) and dropped when NA (missing),
+#'   preserving the containment order. The singularity becomes the
+#'   core.
+#' @param cell a \code{visualr_topology_cell}.
+#' @param pal_orig the ORIGINAL pal (for mapping_pack_id/provenance
+#'   continuity).
+#' @return a \code{visualr_pal} object.
+#' @examples
+#' p <- new_pal_state(c("A","B","C","D"), "e")
+#' res <- run_topology_pipeline(p, "rotate")
+#' cell_to_pal(res$carrier_out$cell, p)
+cell_to_pal <- function(cell, pal_orig) {
+  if (!inherits(cell, "visualr_topology_cell")) {
+    stop("`cell` must be a visualr_topology_cell.", call. = FALSE)
+  }
+  validate_pal(pal_orig)
+  shells <- character(0)
+  for (nm in c("A", "B", "C", "D")) {
+    ep <- cell$orbits[[nm]]
+    if (!anyNA(ep)) {
+      shells <- c(shells, ep[1])  # head token (canonical: head == tail)
+    }
+  }
+  new_pal_state(
+    shells = shells,
+    core = cell$singularity,
+    mapping_pack_id = pal_orig$mapping_pack_id,
+    provenance = pal_orig$provenance
+  )
 }

@@ -9,6 +9,7 @@
 \alias{reconcile}
 \alias{commit}
 \alias{run_topology_pipeline}
+\alias{cell_to_pal}
 \title{Topology Operator ABI v0.1 — high-dimensional operator pipeline}
 \usage{
 new_topology_cell(core, orbits, phase = NULL, orientation = NULL,
@@ -31,6 +32,8 @@ reconcile(deltas, cell, mapping_pack_id = DEFAULT_MAPPING_PACK_ID)
 commit(reconciled, carrier)
 
 run_topology_pipeline(pal, kernels = NULL)
+
+cell_to_pal(cell, pal_orig)
 }
 \arguments{
   \item{core}{Single character; the singularity token (e.g. "e").}
@@ -55,6 +58,9 @@ run_topology_pipeline(pal, kernels = NULL)
   \item{deltas}{Result of \code{execute_lanes} (named list A/B/C/D/e).}
   \item{mapping_pack_id}{Character; pack for closure semantics.}
   \item{reconciled}{Result of \code{reconcile}.}
+  \item{cell}{A \code{visualr_topology_cell} to re-encode.}
+  \item{pal_orig}{The ORIGINAL pal (mapping_pack_id/provenance
+    continuity).}
 }
 \value{
   \code{new_topology_cell} returns a \code{visualr_topology_cell};
