@@ -22,14 +22,11 @@ test_that("concurrency_report validates inputs", {
 })
 
 test_that("concurrency_report reports fallback when requested cores not used", {
-  # On Windows, ncores=4 forces serial fallback (fallback TRUE)
-  # On Linux/macOS, ncores=4 uses multicore (fallback FALSE)
+  # v0.4.x: auto engine uses multicore on Unix, PSOCK on Windows.
+  # Neither degrades when ncores=4, so fallback is FALSE on both.
+  # (PSOCK provides true parallelism on Windows; previously serial-fallback.)
   r <- concurrency_report(sizes = 50L, ncores_vec = 4L, trials = 1)
-  if (.Platform$OS.type == "windows") {
-    expect_true(r$fallback)
-  } else {
-    expect_false(r$fallback)
-  }
+  expect_false(r$fallback)
 })
 
 test_that("concurrency_health reports platform-correct fork support", {
