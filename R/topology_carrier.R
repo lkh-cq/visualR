@@ -183,7 +183,7 @@ pal_to_cell <- function(pal) {
   if (n_shells >= 1L) {
     orbit_names <- rev(c("A", "B", "C", "D")[seq_len(min(n_shells, 4L))])
     # map shells (outermost first) to orbit labels A..D (A outermost)
-    orbits <- setNames(vector("list", 4L), c("A", "B", "C", "D"))
+    orbits <- stats::setNames(vector("list", 4L), c("A", "B", "C", "D"))
     for (i in seq_len(min(n_shells, 4L))) {
       label <- c("A", "B", "C", "D")[i]
       tok <- shells[i]

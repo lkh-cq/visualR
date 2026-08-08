@@ -278,6 +278,13 @@ pal_resolve_pack <- function(pal) {
 # carrier_fn for the default pack.
 
 .onLoad <- function(libname, pkgname) {
+  # Register built-in lane kernels (Topology Operator ABI v0.1).
+  # Idempotent: skip if already present (load_all may re-run).
+  for (nm in c("identity", "complement", "mirror", "rotate", "gamma")) {
+    if (!exists(nm, envir = .lane_kernel_env, inherits = FALSE)) {
+      lane_kernel_register(nm, get(paste0("kernel_", nm)))
+    }
+  }
   default_pack <- new_mapping_pack(
     id = "pal-jiugong-v0.2",
     orbit_table = ORBIT_TABLE,
