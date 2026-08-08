@@ -42,6 +42,29 @@ jobs:
           R CMD build .
           R CMD check --no-manual visualR_*.tar.gz
 
+      # CI must be auditable, not just green/red (audit ruling 2026-08-08):
+      # on failure, dump the full 00check.log plus test outputs so the
+      # next diagnostic starts from the FIRST real ERROR/WARNING block
+      # instead of a bare non-zero exit.
+      - name: Show R CMD check log on failure
+        if: failure()
+        shell: bash
+        run: |
+          echo "===== 00check.log ====="
+          find . -name 00check.log -exec sh -c 'echo "--- {} ---"; cat {}' \;
+          echo "===== test outputs ====="
+          find . -path '*Rcheck/tests/*.Rout*' -exec sh -c 'echo "--- {} ---"; cat {}' \;
+
+      - name: Upload R check evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rcheck-${{ runner.os }}-${{ matrix.config.r }}
+          path: |
+            **/*.Rcheck/00check.log
+            **/*.Rcheck/tests/
+          if-no-files-found: ignore
+
       - name: Install package
         shell: bash
         run: R CMD INSTALL visualR_*.tar.gz
