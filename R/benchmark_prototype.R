@@ -1,6 +1,7 @@
 # == benchmark prototype: one-command closed-loop baseline ===========
-# v0.5.0 "基准原型 R 包" (user decision 2026-08-08: R-only baseline,
-# Java is the future implementation language; Python is not invested).
+# v0.5.0 "benchmark prototype R package" (user decision 2026-08-08:
+# R-only baseline; Java is the future implementation language; Python
+# is not invested).
 #
 # Two entry points prove the complete closed loop is usable and
 # reproducible, serving as the reference baseline for all later work:
@@ -11,6 +12,8 @@
 #
 # Design: pure wrappers over existing frozen functions. No new
 # semantics; the prototype is a usability/reproducibility contract.
+# NOTE: all code/strings in this file are pure ASCII (R CMD check
+# requires portable code; no non-ASCII comments).
 
 #' @title Run the full closed-loop demo (benchmark prototype)
 #' @description One-command proof of the complete visualR loop:
@@ -30,25 +33,25 @@ demo_full_loop <- function(state = NULL, op = "identity") {
   if (is.null(state)) {
     state <- list(shells = c("A", "B", "C", "D"), core = "e")
   }
-  cat("==== visualR 基准原型 · 全闭环演示 ====\n")
+  cat("==== visualR benchmark prototype: full closed loop ====\n")
 
   # 1. Construct + validate canonical PAL state
   pal <- new_pal_state(state$shells, state$core)
-  cat(sprintf("1. 构造PAL状态: %s\n", format_pal(pal)))
+  cat(sprintf("1. build PAL state: %s\n", format_pal(pal)))
 
   # 2. Materialize the approved compute view (unified dispatch)
   m <- materialize(pal)
   stopifnot(m$ok)
-  cat(sprintf("2. 展开九宫载体 [%s]: %d 格\n", m$carrier, length(m$grid)))
+  cat(sprintf("2. materialize carrier [%s]: %d cells\n", m$carrier, length(m$grid)))
 
   # 3. Compute on CPU (serial reference semantics)
   grid <- compute_jiugong(m$grid, op, mapping_pack_id = pal$mapping_pack_id)
-  cat(sprintf("3. CPU计算 (op=%s): 闭合=%s\n", op,
+  cat(sprintf("3. CPU compute (op=%s): closed=%s\n", op,
               closure_check(grid, pal$mapping_pack_id)))
 
   # 4. Closure / transition decision
   verdict <- transition_policy(grid, pal$mapping_pack_id)
-  cat(sprintf("4. 过渡决策: %s\n", verdict))
+  cat(sprintf("4. transition verdict: %s\n", verdict))
 
   # 5. Fold back to canonical storage when legal
   folded <- NULL
@@ -57,19 +60,19 @@ demo_full_loop <- function(state = NULL, op = "identity") {
       structure(list(grid = grid, mapping_pack_id = pal$mapping_pack_id),
                 class = "visualr_jiugong")
     )
-    cat(sprintf("5. 折返存储: %s\n", format_pal(folded)))
+    cat(sprintf("5. fold back: %s\n", format_pal(folded)))
   } else {
-    cat(sprintf("5. 折返: 跳过 (verdict=%s, 非promote)\n", verdict))
+    cat(sprintf("5. fold back: skip (verdict=%s, not promote)\n", verdict))
   }
 
   # 6. Package the canonical state
   pkg <- package_state(pal)
-  cat(sprintf("6. 打包: %s (checksum %s)\n", pkg$format,
+  cat(sprintf("6. package: %s (checksum %s)\n", pkg$format,
               substr(pkg$checksum, 1, 12)))
 
   # 7. Reload in a fresh process and reproduce the same state
   reload_ok <- package_reload_check(pkg)
-  cat(sprintf("7. 重载复现: %s\n", if (reload_ok) "OK (同一canonical state)" else "FAILED"))
+  cat(sprintf("7. fresh-process reload: %s\n", if (reload_ok) "OK (same canonical state)" else "FAILED"))
 
   invisible(list(pal = pal, matrix = grid, verdict = verdict,
                  folded = folded, pkg = pkg, reload_ok = reload_ok))
@@ -91,7 +94,7 @@ demo_full_loop <- function(state = NULL, op = "identity") {
 benchmark_all <- function(overhead_reps = 100L,
                           latency_reps = 50L,
                           throughput_n = 2000L) {
-  cat("==== visualR 基准原型 · Efficiency Gate 全量测量 ====\n")
+  cat("==== visualR benchmark prototype: Efficiency Gate measurements ====\n")
   out <- list(
     storage    = benchmark_storage(),
     transfer   = benchmark_transfer(),

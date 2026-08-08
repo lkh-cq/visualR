@@ -161,7 +161,7 @@ benchmark_peak_ram <- function() {
   rows <- lapply(names(defs), function(nm) {
     d <- defs[[nm]]
     pal <- new_pal_state(d$shells, d$core)
-    pal_bytes <- as.numeric(object.size(pal))
+    pal_bytes <- as.numeric(utils::object.size(pal))
     if (nm == "S5") {
       mx <- carrier_11x11()
     } else {
@@ -173,7 +173,7 @@ benchmark_peak_ram <- function() {
       }
       mx <- m$grid
     }
-    mx_bytes <- as.numeric(object.size(mx))
+    mx_bytes <- as.numeric(utils::object.size(mx))
     data.frame(dim = nm, pal_object_bytes = pal_bytes,
                matrix_object_bytes = mx_bytes,
                ram_reduction = mx_bytes / pal_bytes)
@@ -203,7 +203,7 @@ benchmark_overhead <- function(reps = 200L) {
     S3 = list(shells = c("A", "B"), core = "c"),
     S4 = list(shells = c("A", "B", "C", "D"), core = "e")
   )
-  med_ms <- function(x) as.numeric(median(x) * 1000)
+  med_ms <- function(x) as.numeric(stats::median(x) * 1000)
   rows <- lapply(names(defs), function(nm) {
     d <- defs[[nm]]
     enc <- numeric(reps); exp <- numeric(reps); fold <- numeric(reps)
@@ -251,7 +251,7 @@ benchmark_latency <- function(reps = 100L) {
         if (m$ok) closure_check(m$grid)
       })[["elapsed"]]
     }
-    data.frame(dim = nm, roundtrip_ms = as.numeric(median(tms) * 1000))
+    data.frame(dim = nm, roundtrip_ms = as.numeric(stats::median(tms) * 1000))
   })
   out <- do.call(rbind, rows)
   rownames(out) <- NULL

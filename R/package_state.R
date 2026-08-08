@@ -243,15 +243,18 @@ package_reload_check <- function(pkg, rscript = file.path(R.home("bin"), "Rscrip
   on.exit(unlink(tf), add = TRUE)
 
   # Fresh process: read the file, unpack, print the canonical PAL.
-  # If the package carries a dev source root, ALWAYS load the source in
-  # the child (an installed older version may lack current exports and
-  # would otherwise shadow the dev checkout). Without a source root,
-  # fall back to the installed package.
+  # Preferred path: the installed package (in CI the checked package is
+  # installed and current, so visualR::unpack_state exists). A dev
+  # source root (pkgload) is used ONLY when explicitly present and the
+  # package is NOT installed — this avoids requiring pkgload in CI
+  # (pkgload is not in Suggests) and avoids shadowing the installed
+  # package with an older dev checkout.
   # Use a temporary script file (not -e) to avoid shell metacharacter
   # expansion on the R expression.
   pkg_root <- if (!is.null(pkg$`_source_root`)) pkg$`_source_root` else NULL
   script_file <- tempfile(fileext = ".R")
-  if (!is.null(pkg_root)) {
+  if (!is.null(pkg_root) &&
+      !requireNamespace("visualR", quietly = TRUE)) {
     script_head <- sprintf(
       'suppressMessages(pkgload::load_all(%s))',
       shQuote(pkg_root)
