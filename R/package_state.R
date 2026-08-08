@@ -144,12 +144,11 @@ list_digest_flat <- function(x) {
 }
 
 # Internal: sha256 hex digest using R's built-in tools (no external dep).
+# Returns a PLAIN character (openssl::sha256 returns classed "hash"
+# objects which break identical() against plain strings).
 digest_sha256 <- function(x) {
-  # tools::md5sum exists everywhere; sha256 via openssl if available,
-  # else fall back to md5 (documented limitation: checksum still
-  # tamper-evident, not collision-strong).
   if (requireNamespace("openssl", quietly = TRUE)) {
-    return(openssl::sha256(x))
+    return(as.character(openssl::sha256(x)))
   }
   con <- textConnection(x)
   on.exit(close(con))
@@ -255,14 +254,21 @@ package_reload_check <- function(pkg, rscript = file.path(R.home("bin"), "Rscrip
   # expansion on the R expression.
   pkg_root <- if (!is.null(pkg$`_source_root`)) pkg$`_source_root` else NULL
   script_file <- tempfile(fileext = ".R")
-  if (!is.null(pkg_root) &&
-      !requireNamespace("visualR", quietly = TRUE)) {
+  # The child decides: pass the parent's library paths explicitly (R CMD
+  # check tests run against a temp lib the child Rscript may not see),
+  # prefer an installed visualR, and fall back to pkgload::load_all of
+  # the dev source root only when no installed package is found.
+  libs <- paste(shQuote(.libPaths()), collapse = ", ")
+  if (!is.null(pkg_root)) {
     script_head <- sprintf(
-      'suppressMessages(pkgload::load_all(%s))',
-      shQuote(pkg_root)
+      '.libPaths(c(%s))\nif (!requireNamespace("visualR", quietly = TRUE)) {\n  suppressMessages(pkgload::load_all(%s))\n}',
+      libs, shQuote(pkg_root)
     )
   } else {
-    script_head <- 'if (!requireNamespace("visualR", quietly = TRUE)) stop("visualR not available")'
+    script_head <- sprintf(
+      '.libPaths(c(%s))\nif (!requireNamespace("visualR", quietly = TRUE)) stop("visualR not available")',
+      libs
+    )
   }
   writeLines(sprintf(
     '%s\npkg <- readRDS(%s)\np <- visualR::unpack_state(pkg)\ncat(visualR::format_pal(p), "\\n")',

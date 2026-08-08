@@ -39,6 +39,9 @@ Imports:
     parallel
 Suggests:
     testthat (>= 3.0.0),
+    pkgload,
     knitr,
     rmarkdown,
-    openssl
+    openssl,
+    RSQLite,
+    DBI

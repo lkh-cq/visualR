@@ -105,7 +105,7 @@ test_that("package_reload_check reproduces state in a fresh process", {
   )) {
     p <- new_pal_state(d$shells, d$core)
     pkg <- package_state(p)
-    ok <- package_reload_check(pkg)
+    ok <- package_reload_check(pkg, verbose = TRUE)
     expect_true(ok, info = paste(d$shells, collapse = ","))
   }
 })
