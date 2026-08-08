@@ -71,3 +71,28 @@ interact("{A{B{C{D{e}D}C}B}A}", "orbit_rotate")   # full loop -> compute result
 ## License
 
 MIT
+
+## 基准原型 (Benchmark Prototype, 2026-08-08)
+
+Two one-command entry points prove the complete closed loop is usable
+and reproducible — the reference baseline for all later work
+(implementation language going forward: **Java**, not Python; Python
+`mapping_pack.py` is historical comparison only, no new investment):
+
+```r
+# 1. Full closed loop: PAL -> expand -> compute -> closure -> fold-back
+#    -> package -> fresh-process reload (same canonical state)
+demo_full_loop()
+
+# 2. All 7 Efficiency-gate measurements in one call
+benchmark_all()
+```
+
+Expected `demo_full_loop()` output ends with:
+
+```
+7. 重载复现: OK (同一canonical state)
+```
+
+Acceptance: full test suite green (302 tests / 1229 assertions), and
+`demo_full_loop()` returns `reload_ok = TRUE`.
