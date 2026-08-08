@@ -37,9 +37,12 @@ test_that("concurrency_health reports platform-correct fork support", {
   expect_equal(h$fork_supported, .Platform$OS.type != "windows")
   # recommended >= 1 always
   expect_gte(h$recommended_cores, 1L)
-  # effective mode consistent with fork_supported
-  if (h$fork_supported && h$recommended_cores > 1L) {
-    expect_equal(h$effective_mode, "multicore")
+  # effective mode consistent with platform capability (v0.4.x):
+  #   Unix+multi-core -> multicore (fork)
+  #   Windows+multi-core -> psock (PSOCK true parallelism)
+  #   single core -> serial
+  if (h$recommended_cores > 1L) {
+    expect_equal(h$effective_mode, if (h$fork_supported) "multicore" else "psock")
   } else {
     expect_equal(h$effective_mode, "serial")
   }

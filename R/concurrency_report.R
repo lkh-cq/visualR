@@ -88,20 +88,28 @@ concurrency_report <- function(sizes = c(200L, 1000L, 5000L),
 #'   companion to \code{batch_compute} (plan §6).
 #' @return list with fields: platform (OS type), fork_supported
 #'   (logical), detect_cores (total cores), recommended_cores (cores
-#'   batch_compute should use), effective_mode ("multicore"|"serial").
+#'   batch_compute should use), effective_mode ("multicore" | "psock"
+#'   | "serial"). v0.4.x: Windows now uses PSOCK for true parallelism,
+#'   so effective_mode is "psock" on multi-core Windows.
 #' @examples
 #' concurrency_health()
 concurrency_health <- function() {
   platform <- .Platform$OS.type
-  # Fork (mclapply) is unavailable on Windows; available on Unix/macOS.
+  # Fork (mclapply) is unavailable on Windows; Unix/macOS use it.
   fork_supported <- (platform != "windows")
   total <- parallel::detectCores()
   if (is.na(total) || total < 1L) total <- 1L
   # batch_compute default: detectCores() - 1, min 1
   recommended <- max(1L, total - 1L)
-  # On Windows, even a "recommended > 1" silently falls back to serial,
-  # so effective mode is serial unless fork is supported and >1 core.
-  effective <- if (fork_supported && recommended > 1L) "multicore" else "serial"
+  # v0.4.x engine resolution (mirrors batch_compute auto):
+  #   Unix+multi-core -> multicore (fork)
+  #   Windows+multi-core -> psock (true parallelism, was serial pre-PSOCK)
+  #   single core -> serial
+  effective <- if (recommended > 1L) {
+    if (fork_supported) "multicore" else "psock"
+  } else {
+    "serial"
+  }
   list(
     platform = platform,
     fork_supported = fork_supported,
