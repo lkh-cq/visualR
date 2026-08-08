@@ -227,13 +227,15 @@ unpack_state <- function(pkg, verify_integrity = TRUE) {
 #' @param pkg a visualr_package object.
 #' @param rscript character; path to Rscript (default from R.home).
 #' @param timeout numeric; seconds to wait for the subprocess.
+#' @param verbose logical; if TRUE, print the child process stderr when
+#'   reproduction fails (default FALSE).
 #' @return logical TRUE if the fresh process reproduced the canonical
 #'   state; FALSE otherwise (with message).
 #' @examples
 #' pkg <- package_state(new_pal_state(c("A","B","C","D"), "e"))
 #' package_reload_check(pkg)
 package_reload_check <- function(pkg, rscript = file.path(R.home("bin"), "Rscript"),
-                                 timeout = 30) {
+                                 timeout = 30, verbose = FALSE) {
   if (!inherits(pkg, "visualr_package")) {
     stop("`pkg` must be a visualr_package.", call. = FALSE)
   }
@@ -279,10 +281,18 @@ package_reload_check <- function(pkg, rscript = file.path(R.home("bin"), "Rscrip
   }
   # The child prints format_pal(p) which is itself multi-line (shells,
   # core, mapping_pack_id, provenance). Join all output lines back into
-  # one string, trim trailing whitespace, and compare against the full
-  # canonical PAL string.
-  reproduced <- trimws(paste(out, collapse = "\n"))
-  identical(reproduced, trimws(format_pal(unpack_state(pkg))))
+  # one string, strip CR (Windows child output uses CRLF) and trailing
+  # whitespace, then compare against the full canonical PAL string.
+  reproduced <- trimws(gsub("\r", "", paste(out, collapse = "\n"), fixed = TRUE))
+  ok <- identical(reproduced, trimws(format_pal(unpack_state(pkg))))
+  if (!ok && verbose) {
+    message("package_reload_check: child output did not match canonical PAL.\n",
+            "--- child stdout/stderr ---\n",
+            paste(out, collapse = "\n"),
+            "\n--- expected canonical PAL ---\n",
+            format_pal(unpack_state(pkg)))
+  }
+  ok
 }
 
 #' @export
