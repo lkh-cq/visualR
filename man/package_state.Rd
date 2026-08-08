@@ -12,7 +12,7 @@ unpack_state(pkg, verify_integrity = TRUE)
 package_checksum(body)
 
 package_reload_check(pkg, rscript = file.path(R.home("bin"), "Rscript"),
-                     timeout = 30)
+                     timeout = 30, verbose = FALSE)
 }
 \arguments{
   \item{x}{A \code{visualr_pal} object, or a single canonical PAL string
@@ -26,6 +26,8 @@ package_reload_check(pkg, rscript = file.path(R.home("bin"), "Rscript"),
   \item{body}{List; the package body WITHOUT the checksum field.}
   \item{rscript}{Character; path to Rscript (default from \code{R.home}).}
   \item{timeout}{Numeric; seconds to wait for the subprocess.}
+  \item{verbose}{Logical; if TRUE, print the child process stderr when
+    reproduction fails (default FALSE).}
 }
 \value{
   \code{package_state} returns a \code{visualr_package} list with fields
