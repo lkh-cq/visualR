@@ -6,6 +6,50 @@ most recent first. Statuses: `[Added]`, `[Changed]`, `[Fixed]`,
 
 ---
 
+## [v0.5.0] — 2026-08-09 (Topology Operator ABI + equation-core stage 1-2)
+
+Per DEVELOPMENT_PLAN_v0.5.0.md: high-dimensional operator concurrency
+(Topology Operator ABI v0.1) replaced the serial-primitive C plan.
+**421 tests / 0 failures, R CMD check OK, CI 5/5 platforms.**
+
+### [Added] — Topology Operator ABI v0.1 (R implementation)
+- `R/topology_carrier.R` — full pipeline: PAL -> TopologyCarrier ->
+  Snapshot -> Concurrent Lanes -> Barrier -> Reconcile -> Commit ->
+  PAL re-encoding (cell_to_pal). TopologyCell holds singularity + N
+  orbits (dynamic labels A..Z, O##), 3x3 is a projection not the
+  object.
+- `R/orbit_operators.R` — 5 lane kernels: identity / complement
+  (C^2=I) / mirror / rotate / gamma. Register/get/list, fail-closed,
+  .onLoad idempotent registration.
+- `R/lane_concurrency.R` — `execute_lanes_parallel()` /
+  `run_topology_pipeline_parallel()`: serial/PSOCK/multicore engines,
+  semantic-equivalence contract (differences are performance only).
+- `R/recurse.R` — recursive re-type four families (simple / complex /
+  interactive / nested), atomic sha256 token design.
+- `R/state_store.R` — SQLite versioned StateStore + event log
+  (optional RSQLite/DBI, fail-closed).
+
+### [Added] — equation-core stage 1-2
+- `R/equation_core.R` — `dimension_series()` (separate candidate
+  L_s/W_d/Q_d, candidate_not_frozen), `gradient_lattice()`
+  (parity-aware), `gradient_residual()`, `audit_dimension_sample()`.
+- `R/gradient_emerge.R` — gradient expansion as layered batches
+  (multi-batch, not matrix filling): gradient_layers / emerge_weight /
+  emerge_by_layers / project_gradient_window /
+  verify_gradient_emergence.
+- `R/sample_analysis.R` — 3x3/4x4 registered as EVIDENCE:
+  detect_symmetries / orbit_partition / center_analysis / label_reuse /
+  audit_sample_topology. Reproduces 4x4 = 6 orbits / 5 labels with
+  label C reused; geometric center != semantic center.
+- `inst/EQUATION_CORE_STAGE1.md`, `inst/EQUATION_CORE_STAGE2.md`.
+
+### [Changed]
+- Branch-1: dynamic orbit labels across S_1..S_5+ (was hardcoded A-D);
+  lane/barrier/reconcile/topology_map fully dynamic.
+- Baseline: R = operator language; C/Java = execution fabric.
+
+---
+
 ## [v0.4.0] — released (2026-08-07)
 
 v0.4.0 proves compactness + CPU deterministic concurrency + transport

@@ -1,8 +1,8 @@
 Package: visualR
 Type: Package
 Title: Palindrome-Addressed Topological Runtime
-Version: 0.4.0
-Date: 2026-08-07
+Version: 0.5.0
+Date: 2026-08-09
 Authors@R:
     person("lkh-cq", given = NULL, email = "lkh-cq@users.noreply.github.com", role = c("aut", "cre"))
 Author: lkh-cq [aut, cre]
