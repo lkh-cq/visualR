@@ -1,8 +1,9 @@
-#' visualR: Palindrome-Addressed Topological Runtime
+#' visualR: Distributed Residual and Palindrome Topological Runtime
 #'
-#' A CPU-native, palindrome-addressed, event-driven topological runtime.
-#' Three-layer architecture: palindrome storage, matrix computation
-#' emergence, and projection view.
+#' An R-first exploratory runtime for joint sampling of positioned residual
+#' fields and for compact palindrome-addressed topology experiments. The
+#' reservoir router owns addresses, budgets, capacities, collisions, and
+#' atomic commit; local signal meaning remains outside the router.
 #'
 #' @keywords internal
 #' @aliases visualR-package

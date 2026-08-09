@@ -1,98 +1,143 @@
 # visualR
 
-Palindrome-Addressed Topological Runtime — an R-first, CPU-native
-runtime for the consciousness-bus mapping layer.
+Distributed Residual Topology Runtime — an R-first exploratory programming
+workbench for concurrent local sampling, constrained routing, and topology-
+preserving state transitions.
 
-> Palindromic syntax stores topology; matrices materialize computation.
+> Intelligence is explored here as local emergence routed toward another
+> local process, not as one controller that understands the whole field.
 
-## Development target
+## Current exploration mainline
 
-The frozen development target is **visualR v0.5.0**:
+The new runtime treats a residual field as a positioned reservoir. Multiple
+local pipes sample it at the same logical instant while a semantically blind
+router enforces two-sided resource constraints:
 
-**Palindrome storage -> Jiugong/operator state -> R/CPU concurrent compute -> closure/fold-back -> compact package storage and transport.**
+$$
+\sum_j a_{ij}\le b_i,
+\qquad
+\sum_i a_{ij}\le \min(q_j,c_j)
+$$
 
-See [`DEVELOPMENT_PLAN_v0.5.0.md`](DEVELOPMENT_PLAN_v0.5.0.md) for the authoritative development-plan baseline.
+- each pipe has a draw budget \(b_i\);
+- each node owns residual supply \(q_j\) and a per-step draw limit \(c_j\);
+- all pipes read one immutable snapshot;
+- oversubscribed nodes scale simultaneous requests fairly;
+- sampled positions and their relations remain in the output topology;
+- supply is deducted once, at an atomic commit boundary.
 
-## Root contract
+This is exploratory runtime semantics, not a claim that the structure already
+models biological intelligence or outperforms CNNs/attention.
 
-- **PAL storage** stores the independent outer-to-inner chain and one
-  singular center as palindrome grammar: `{A{B{C{D{e}D}C}B}A}`.
-- **Matrices are equations, not pictures**: a working matrix is a 2D
-  slice of a dimension expansion, storing computation-state information.
-- **Mapping pack** is the authoritative basis for ALL
-  storage-computation mappings (mapping-pack dependency injection,
-  fail closed).
-- **R interactive + concurrent computation is the BENCHMARK**; Python
-  `mapping_pack.py` is glue/cross-validation only.
+The full direction and its deliberately unresolved questions are documented
+in [`EXPLORATION_MAINLINE.md`](EXPLORATION_MAINLINE.md).
 
-## Three-layer architecture (藏归分离)
-
-1. **Storage layer** — palindrome state (`new_pal_state`),
-   serialization (`format_pal`/`parse_pal`, v0.2 length-prefixed,
-   RCE-safe), validation (closed token domain).
-2. **Grammar layer** — palindrome grammar interop
-   (`pal_parse`/`pal_encode`), bijective with Python reference.
-3. **Compute layer** — unfold/fold, jiugong mapping, closure fact /
-   transition policy, emergence operators, Gamma generator, peel
-   chain, 11x11 carrier, unified carrier dispatch
-   (`materialize`).
-
-## Interactive + concurrent entry points
+## Minimal runnable step
 
 ```r
-pal_pipe("{A{B{C{D{e}D}C}B}A}", "orbit_rotate")  # storage->compute->fold-back
-batch_compute(pals, "identity", ncores = 12)      # parallel bulk (R benchmark)
-interact("{A{B{C{D{e}D}C}B}A}", "orbit_rotate")   # full loop -> compute result
+library(visualR)
+
+field <- new_reservoir(
+  signal = c(2, -1, 4, 3, 6, 5),
+  position = cbind(x = seq(0, 1, length.out = 6)),
+  supply = rep(1, 6),
+  capacity = rep(0.5, 6)
+)
+
+pipes <- list(
+  new_reservoir_pipe(
+    "local-a", budget = 0.8, phase = 0,
+    phase_step = sqrt(2) - 1
+  ),
+  new_reservoir_pipe(
+    "local-b", budget = 0.8, phase = 0.5,
+    phase_step = (sqrt(5) - 1) / 2
+  )
+)
+
+step <- reservoir_step(field, pipes, k = 3)
+
+step$allocation$matrix       # pipe × positioned-node draw rights
+step$outputs                 # one boundary output per local pipe
+step$topology$nodes          # sampled addresses
+step$topology$edges          # distance/direction/co-sampling relations
+step$conservation            # input = extracted + remaining (+ tolerance)
+
+# Continue without rebuilding global state.
+next_step <- reservoir_step(step$reservoir_out, step$pipes_out, k = 3)
 ```
 
-## Status
+The irrational phase steps above are optional scheduling policies. In an
+ideal continuous rotation they avoid exact periodic closure; in this R
+prototype they are finite floating-point approximations, not proofs or a new
+node type.
 
-- v0.1.1: RCE-hardened serialization, frozen symmetry operators
-- v0.2.0: grammar layer, compute layer, Gamma, carrier, R
-  interactive+concurrent layer
-- **v0.2.1: Semantic Hardening** — mapping-pack DI (fail closed),
-  unified carrier dispatch, closed token domain, closure fact /
-  transition policy separation, compute result with trace;
-  experimental markers on fitted carrier/Gamma rules
-- **v0.3.0: B-Promotion** — 3 experimental markers promoted to
-  FROZEN (carrier_11x11, Gamma lowercasing, closure recurse), backed
-  by added coverage; version/metadata/lifecycle aligned
-- **v0.4.0: Compactness + Deterministic Concurrency Proof** — frozen
-  baseline with reproducible measurement infrastructure:
-  `benchmark_storage()` (stored bytes), `concurrency_report()`
-  (throughput), `concurrency_health()` (fork/effective-mode),
-  `pal_compact()` (resident compact form). All 7 Efficiency-gate
-  measurements published. Cross-language nested-logic contract
-  (`inst/PAL_NESTED_CONTRACT.md`) reserved for future readers.
+## Runtime boundary
 
-1137 test expectations, `R CMD check` clean (0 errors / 0 warnings /
-0 notes). Pure base R + `parallel`; zero external dependencies.
+The implemented router may inspect:
+
+- node address and position;
+- residual supply and per-step capacity;
+- pipe budget, phase, and bandwidth;
+- collisions and commit order.
+
+It does not inspect a local process's private metadata or decide what a signal
+means. `outputs + topology` is therefore a boundary packet for the next
+exploration — local-to-local coherence — rather than a built-in universal
+coherence score.
+
+## Relationship to the PAL runtime
+
+The previous Palindrome-Addressed Topological Runtime remains available and
+tested:
+
+```text
+PAL compact state
+  -> TopologyCarrier / shared snapshot
+  -> concurrent orbit operators
+  -> reconcile / commit
+  -> PAL fold-back and transport
+```
+
+Its storage, grammar, mapping-pack, carrier, recursion, concurrency, and
+package APIs have not been removed. In the new direction, PAL becomes one
+possible topology generator or compact projection instead of the mandatory
+shape of every runtime state.
+
+Examples remain valid:
+
+```r
+p <- new_pal_state(c("A", "B", "C", "D"), "e")
+run_topology_pipeline(p, "rotate")
+run_topology_pipeline_parallel(p, "rotate", engine = "psock", ncores = 2)
+```
+
+The former frozen v0.5 plan is preserved in
+[`DEVELOPMENT_PLAN_v0.5.0.md`](DEVELOPMENT_PLAN_v0.5.0.md) as the PAL-line
+baseline. It is no longer presented as the only possible future of visualR.
+
+## New public API
+
+| Function | Role |
+|---|---|
+| `new_reservoir()` | Create positioned signal, residual supply, and node draw limits |
+| `new_reservoir_pipe()` | Declare a local pipe's exposed routing boundary |
+| `phase_sequence()` | Inspect a modular scheduling sequence |
+| `route_pipes()` | Produce spatial preferences without consuming supply |
+| `allocate_pipes()` | Jointly assign pipe budgets under node-side limits |
+| `reservoir_topology()` | Recover selected addresses and their relations |
+| `reservoir_step()` | Route, allocate, extract, commit, and advance phases atomically |
+
+## Package baseline
+
+- Language: base R reference semantics; `parallel` remains the only import.
+- Development package version: 0.4.0.9000 (after the 0.4.0 PAL baseline).
+- Existing PAL baseline: serialization hardening, Mapping Pack authority,
+  dynamic topology carriers, deterministic CPU lane execution, state store,
+  recursion experiments, packaging, and compactness benchmarks.
+- New reservoir module: intentionally isolated from PAL storage so both
+  computational hypotheses can be compared before an adapter is frozen.
 
 ## License
 
 MIT
-
-## 基准原型 (Benchmark Prototype, 2026-08-08)
-
-Two one-command entry points prove the complete closed loop is usable
-and reproducible — the reference baseline for all later work
-(implementation language going forward: **Java**, not Python; Python
-`mapping_pack.py` is historical comparison only, no new investment):
-
-```r
-# 1. Full closed loop: PAL -> expand -> compute -> closure -> fold-back
-#    -> package -> fresh-process reload (same canonical state)
-demo_full_loop()
-
-# 2. All 7 Efficiency-gate measurements in one call
-benchmark_all()
-```
-
-Expected `demo_full_loop()` output ends with:
-
-```
-7. 重载复现: OK (同一canonical state)
-```
-
-Acceptance: full test suite green (302 tests / 1229 assertions), and
-`demo_full_loop()` returns `reload_ok = TRUE`.

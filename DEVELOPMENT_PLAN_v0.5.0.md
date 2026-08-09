@@ -1,5 +1,11 @@
 # visualR Development Plan v0.5.0
 
+> Historical PAL-line baseline. The branch-level exploration mainline was
+> superseded on 2026-08-09 by
+> [`EXPLORATION_MAINLINE.md`](EXPLORATION_MAINLINE.md). This document remains
+> authoritative only for reproducing and evaluating the earlier PAL milestone;
+> it no longer excludes parallel computational hypotheses.
+>
 > Status: **FROZEN DEVELOPMENT PLAN**  
 > Target milestone: **visualR v0.5.0**  
 > Current package baseline when this plan was frozen: **v0.3.0**  
