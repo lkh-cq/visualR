@@ -171,20 +171,26 @@ kernel_gamma <- function(orbit, phase = "idle", pack = NULL) {
 #' lane_kernels(list(A = "gamma", B = "complement", e = "identity"))
 lane_kernels <- function(spec) {
   if (is.character(spec) && length(spec) == 1L) {
+    # One kernel for ALL lanes: A..Z orbits + e. Deeper states pick the
+    # subset they need; missing labels are simply unused. (Branch-1:
+    # dynamic orbit count — S_5 uses A..E + e.)
     fn <- lane_kernel_get(spec)
-    out <- list(A = fn, B = fn, C = fn, D = fn, e = fn)
+    out <- stats::setNames(lapply(c(LETTERS, "e"), function(nm) fn),
+                           c(LETTERS, "e"))
   } else if (is.list(spec)) {
-    need <- c("A", "B", "C", "D", "e")
-    miss <- setdiff(need, names(spec))
-    if (length(miss) > 0L) {
-      stop(sprintf("lane spec missing: %s", paste(miss, collapse = ",")),
-           call. = FALSE)
+    if (is.null(names(spec)) || any(names(spec) == "")) {
+      stop("lane spec entries must be named.", call. = FALSE)
     }
     out <- lapply(spec, function(s) {
       if (is.character(s) && length(s) == 1L) lane_kernel_get(s)
       else if (is.function(s)) s
       else stop("lane spec entries must be kernel names or functions.")
     })
+    # Missing required labels default to identity (so partial specs work
+    # for any depth): fill A..Z + e, preserving explicit entries.
+    for (nm in c(LETTERS, "e")) {
+      if (is.null(out[[nm]])) out[[nm]] <- lane_kernel_get("identity")
+    }
   } else {
     stop("`spec` must be a kernel name or a named list.", call. = FALSE)
   }
@@ -219,11 +225,17 @@ execute_lanes_ops <- function(snap, kernels = NULL, pack = NULL) {
     pack <- tryCatch(pal_resolve_pack(cell$origin$pal %||% cell$singularity),
                      error = function(e) NULL)
   }
-  list(
-    A = kernels$A(cell$orbits$A, cell$phase, pack),
-    B = kernels$B(cell$orbits$B, cell$phase, pack),
-    C = kernels$C(cell$orbits$C, cell$phase, pack),
-    D = kernels$D(cell$orbits$D, cell$phase, pack),
-    e = kernels$e(cell$singularity, cell$phase, pack)
-  )
+  # Dynamic lanes: ONE lane per orbit (label order) + the singularity
+  # lane. S_4 -> A/B/C/D + e; S_5 -> A/B/C/D/E + e. (Branch-1 audit
+  # 2026-08-09: hard-coded 4 orbits dropped S_5+ shells.)
+  lane_names <- names(cell$orbits)
+  if (is.null(lane_names) || any(lane_names == "")) {
+    lane_names <- LETTERS[seq_along(cell$orbits)]
+  }
+  out <- lapply(lane_names, function(nm) {
+    kernels[[nm]](cell$orbits[[nm]], cell$phase, pack)
+  })
+  names(out) <- lane_names
+  out[["e"]] <- kernels$e(cell$singularity, cell$phase, pack)
+  out
 }

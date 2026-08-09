@@ -41,15 +41,12 @@ new_topology_cell <- function(core, orbits, phase = NULL,
     stop("`core` must be a single non-NA character.", call. = FALSE)
   }
   if (!is.list(orbits) || is.null(names(orbits))) {
-    stop("`orbits` must be a named list (A/B/C/D).", call. = FALSE)
+    stop("`orbits` must be a named list.", call. = FALSE)
   }
-  need <- c("A", "B", "C", "D")
-  miss <- setdiff(need, names(orbits))
-  if (length(miss) > 0L) {
-    stop(sprintf("`orbits` missing: %s", paste(miss, collapse = ",")),
-         call. = FALSE)
+  if (any(names(orbits) == "") || anyDuplicated(names(orbits))) {
+    stop("`orbits` must have unique, non-empty names.", call. = FALSE)
   }
-  for (nm in need) {
+  for (nm in names(orbits)) {
     ep <- orbits[[nm]]
     if (!is.character(ep) || length(ep) != 2L) {
       stop(sprintf("orbit %s must be a 2-char endpoint vector.", nm),
@@ -64,7 +61,7 @@ new_topology_cell <- function(core, orbits, phase = NULL,
   }
   structure(
     list(singularity = core,
-         orbits = orbits[need],
+         orbits = orbits,
          phase = phase %||% "idle",
          orientation = orientation %||% "canonical",
          origin = origin,
@@ -109,11 +106,11 @@ new_topology_carrier <- function(pal, cell = NULL, axes = NULL,
   half <- (n - 1L) / 2L
   topo_map <- list(
     singularity = list(index = half + 1L, token = pal$core),
-    orbits = lapply(c("A", "B", "C", "D"), function(nm) {
+    orbits = lapply(names(cell$orbits), function(nm) {
       list(name = nm, head_idx = NA_integer_, tail_idx = NA_integer_)
     })
   )
-  names(topo_map$orbits) <- c("A", "B", "C", "D")
+  names(topo_map$orbits) <- names(cell$orbits)
   # active_mask: all cells active for a canonical carrier (future:
   # inactive regions stay frozen).
   active_mask <- matrix(TRUE, nrow = 3L, ncol = 3L)
@@ -133,7 +130,7 @@ new_topology_carrier <- function(pal, cell = NULL, axes = NULL,
 print.visualr_topology_cell <- function(x, ...) {
   cat(sprintf("<visualr_topology_cell> singularity=%s phase=%s\n",
               x$singularity, x$phase))
-  for (nm in c("A", "B", "C", "D")) {
+  for (nm in names(x$orbits)) {
     ep <- x$orbits[[nm]]
     cat(sprintf("  orbit %s: %s <-> %s\n", nm, ep[1], ep[2]))
   }
@@ -175,23 +172,19 @@ pal_to_cell <- function(pal) {
   if (n < 1L) stop("PAL with no tokens.", call. = FALSE)
   half <- (n - 1L) / 2L
   core <- pal$core
-  # Orbits: each shell pair (head, tail) is an orbit; for S_4 we get
-  # A,B,C,D from outermost to innermost. The mirror pair preserves the
-  # containment semantics (head at distance d, tail at mirrored d).
+  # Orbits: each shell pair (head, tail) is an orbit; orbit labels are
+  # A, B, C, D, E, ... (outermost first). S_4 uses A..D; deeper states
+  # (S_5+) extend the label sequence so NO shell is dropped (audit
+  # 2026-08-09: S_4-only evidence hid the S_5 truncation).
   shells <- pal$shells
   n_shells <- length(shells)
+  labels <- if (n_shells <= 26L) LETTERS[seq_len(n_shells)]
+            else sprintf("O%02d", seq_len(n_shells))
   if (n_shells >= 1L) {
-    orbit_names <- rev(c("A", "B", "C", "D")[seq_len(min(n_shells, 4L))])
-    # map shells (outermost first) to orbit labels A..D (A outermost)
-    orbits <- stats::setNames(vector("list", 4L), c("A", "B", "C", "D"))
-    for (i in seq_len(min(n_shells, 4L))) {
-      label <- c("A", "B", "C", "D")[i]
+    orbits <- stats::setNames(vector("list", n_shells), labels)
+    for (i in seq_len(n_shells)) {
       tok <- shells[i]
-      orbits[[label]] <- c(tok, tok)  # head == tail for canonical PAL
-    }
-    # fill missing orbits with NA placeholders
-    for (label in c("A", "B", "C", "D")) {
-      if (is.null(orbits[[label]])) orbits[[label]] <- c(NA_character_, NA_character_)
+      orbits[[i]] <- c(tok, tok)  # head == tail for canonical PAL
     }
   } else {
     orbits <- list(A = c(NA_character_, NA_character_),
@@ -302,11 +295,13 @@ execute_lanes <- function(snap, kernels = NULL) {
 #' @return TRUE if all lanes present; error otherwise.
 barrier <- function(deltas) {
   if (!is.list(deltas)) stop("`deltas` must be a list.", call. = FALSE)
-  need <- c("A", "B", "C", "D", "e")
-  miss <- setdiff(need, names(deltas))
-  if (length(miss) > 0L) {
-    stop(sprintf("barrier: missing lane deltas: %s", paste(miss, collapse = ",")),
+  nm <- names(deltas)
+  if (length(nm) == 0L || any(nm == "") || anyDuplicated(nm)) {
+    stop("barrier: deltas must be a named list with unique non-empty names.",
          call. = FALSE)
+  }
+  if (!"e" %in% nm) {
+    stop("barrier: missing singularity lane 'e'.", call. = FALSE)
   }
   TRUE
 }
@@ -335,9 +330,15 @@ reconcile <- function(deltas, cell, mapping_pack_id = DEFAULT_MAPPING_PACK_ID) {
     stop("`cell` must be a visualr_topology_cell.", call. = FALSE)
   }
   conflicts <- character(0)
-  # 1. determinable check: identity lanes keep endpoints; verify no
-  #    lane produced a structural anomaly.
-  for (nm in c("A", "B", "C", "D")) {
+  # 1. determinable check: lanes keep endpoints; verify no
+  #    lane produced a structural anomaly (dynamic orbit count).
+  lane_names <- names(deltas)
+  lane_names <- lane_names[lane_names != "e"]
+  if (length(lane_names) == 0L) {
+    return(list(ok = FALSE, conflicts = "no orbit lanes", phase = cell$phase,
+                action = "reject", reconciled_cell = cell))
+  }
+  for (nm in lane_names) {
     res <- deltas[[nm]]
     if (!is.list(res) || !"result" %in% names(res)) {
       conflicts <- c(conflicts, sprintf("%s: malformed lane result", nm))
@@ -347,11 +348,9 @@ reconcile <- function(deltas, cell, mapping_pack_id = DEFAULT_MAPPING_PACK_ID) {
     return(list(ok = FALSE, conflicts = conflicts, phase = cell$phase,
                 action = "reject", reconciled_cell = cell))
   }
-  # 2. build reconciled cell from lane results
-  new_orbits <- list(
-    A = deltas$A$result, B = deltas$B$result,
-    C = deltas$C$result, D = deltas$D$result
-  )
+  # 2. build reconciled cell from lane results (dynamic orbit count)
+  new_orbits <- lapply(lane_names, function(nm) deltas[[nm]]$result)
+  names(new_orbits) <- lane_names
   reconciled <- new_topology_cell(
     core = cell$singularity,
     orbits = new_orbits,
@@ -362,7 +361,7 @@ reconcile <- function(deltas, cell, mapping_pack_id = DEFAULT_MAPPING_PACK_ID) {
   )
   # 3. phase transition: when all lanes stable (identity), phase idles
   phase <- cell$phase
-  if (all(vapply(c("A", "B", "C", "D"), function(nm) {
+  if (all(vapply(lane_names, function(nm) {
     identical(deltas[[nm]]$action, "identity")
   }, logical(1)))) {
     phase <- "idle"
@@ -457,8 +456,14 @@ cell_to_pal <- function(cell, pal_orig) {
   }
   validate_pal(pal_orig)
   shells <- character(0)
-  for (nm in c("A", "B", "C", "D")) {
-    ep <- cell$orbits[[nm]]
+  # Read orbits in label order (A, B, C, D, E, ...) — dynamic, so
+  # deeper states (S_5+) keep every shell (audit 2026-08-09).
+  nm <- names(cell$orbits)
+  if (is.null(nm) || any(nm == "")) {
+    nm <- LETTERS[seq_along(cell$orbits)]
+  }
+  for (label in nm) {
+    ep <- cell$orbits[[label]]
     if (!anyNA(ep)) {
       shells <- c(shells, ep[1])  # head token (canonical: head == tail)
     }

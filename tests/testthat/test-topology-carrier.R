@@ -43,8 +43,11 @@ test_that("pal_to_cell handles S_0 (no shells)", {
 })
 
 test_that("new_topology_cell validates orbits", {
-  expect_error(new_topology_cell("e", list(A = "A", B = "B")),
-               "named list|missing")
+  # unnamed orbits -> error
+  expect_error(new_topology_cell("e", list("A", "B")), "named list")
+  # endpoint must be length-2 char vector (single string rejected)
+  expect_error(new_topology_cell("e", list(A = "A", B = c("B", "B"))),
+               "2-char endpoint")
   expect_error(new_topology_cell("e", list(A = c("A", "A"), B = c("B", "B"),
                                            C = c("C", "C"), D = "D")),
                "2-char endpoint")
@@ -87,7 +90,10 @@ test_that("barrier accepts complete deltas and rejects incomplete", {
   cr <- new_topology_carrier(p)
   deltas <- execute_lanes(snapshot(cr))
   expect_true(barrier(deltas))
-  expect_error(barrier(deltas[1:3]), "missing lane")
+  # dropping the singularity lane is rejected
+  expect_error(barrier(deltas[1:3]), "singularity lane")
+  # unnamed deltas are rejected
+  expect_error(barrier(unname(deltas)), "named list")
 })
 
 test_that("reconcile identity lanes promote with no conflicts", {

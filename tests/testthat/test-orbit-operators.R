@@ -98,10 +98,15 @@ test_that("lane_kernels builds dispatch lists", {
   .onLoad_lane_kernels()
   k <- lane_kernels("rotate")
   expect_true(all(vapply(k, is.function, logical(1))))
-  expect_identical(names(k), c("A", "B", "C", "D", "e"))
+  # dynamic: A..Z + e (Branch-1 — deeper states use the subset they need)
+  expect_identical(names(k), c(LETTERS, "e"))
   k2 <- lane_kernels(list(A = "gamma", B = kernel_complement,
                           C = "rotate", D = "mirror", e = "identity"))
   expect_true(is.function(k2$B))
+  # partial specs fill missing labels with identity (A = gamma, B = identity)
+  k3 <- lane_kernels(list(A = "gamma"))
+  expect_true(is.function(k3$B))
+  expect_false(identical(k3$B, k3$A))
 })
 
 test_that("unknown lane kernel fails closed", {
