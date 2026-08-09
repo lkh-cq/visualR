@@ -1,36 +1,22 @@
 Package: visualR
 Type: Package
-Title: Palindrome-Addressed Topological Runtime
-Version: 0.4.0
-Date: 2026-08-07
+Title: Distributed Residual and Palindrome Topological Runtime
+Version: 0.4.0.9000
+Date: 2026-08-09
 Authors@R:
     person("lkh-cq", given = NULL, email = "lkh-cq@users.noreply.github.com", role = c("aut", "cre"))
 Author: lkh-cq [aut, cre]
 Maintainer: lkh-cq <lkh-cq@users.noreply.github.com>
-Description: A palindrome-addressed topological runtime with three-layer
-    architecture: palindrome storage, matrix computation emergence,
-    and projection view. Pure-R semantic correctness for PAL state
-    construction, format/parse serialization, palindrome unfold/fold,
-    jiugong grid mapping, diamond order field, frozen symmetry
-    operations, and validation. v0.1.1 hardens serialization against
-    arbitrary code execution. v0.2 adds palindrome grammar interop,
-    closure gate, emergence operators, Gamma generator, peel chain,
-    S_5 carrier, and R interactive+concurrent layer
-    (pal_pipe / batch_compute / interact). v0.2.1 Semantic Hardening:
-    mapping-pack dependency injection (fail-closed), unified carrier
-    dispatch, closed token domain, closure fact / transition policy
-    separation. v0.2.2 P0 completion: full-content pack hash with
-    assert_pack on resolve (fail closed on tamper), pack drives ALL
-    mappings (gamma_rule / local_center_transform / carrier_fn), typed
-    carrier dispatch (non-3x3 carriers are views, not compute paths),
-    operator ABI enforced at registration and call time, strict
-    S_4-only pal_to_jiugong + general pal_to_square_view, hard offset
-    validation in diamond_at, GitHub Actions CI (Linux/Windows/macOS,
-    release/oldrel/devel). v0.3.0 B-Promotion: 3 experimental markers
-    (carrier_11x11 / Gamma lowercasing / closure recurse) promoted to
-    FROZEN with added coverage, metadata/lifecycle aligned. R
-    interactive-concurrent is the benchmark; Python mapping_pack.py is
-    glue/cross-validation only.
+Description: An R-first exploratory topology runtime with two coexisting
+    execution hypotheses. The distributed residual reservoir gives multiple
+    local samplers one immutable positioned field, jointly assigns draw rights
+    under pipe budgets and node-side capacities, preserves sampled position
+    relations, and atomically commits residual supply. The established
+    palindrome runtime remains available for compact PAL storage, grammar,
+    mapping-pack controlled materialization, CPU lane concurrency, closure,
+    recursion experiments, packaging, and transport. Base R defines the
+    executable reference semantics; alternate runtimes remain optional
+    execution fabrics.
 License: MIT + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 7.3.2

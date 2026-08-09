@@ -6,6 +6,26 @@ most recent first. Statuses: `[Added]`, `[Changed]`, `[Fixed]`,
 
 ---
 
+## [v0.4.0.9000] — exploratory mainline (2026-08-09)
+
+### [Added]
+- Distributed residual reservoir runtime: positioned nodes, residual supply,
+  per-step node capacity, local pipe budgets, modular phase schedules,
+  topology-preserving extraction, and atomic conservation checks.
+- Synchronous water-filling allocator. All local pipes request from one
+  snapshot; an oversubscribed node scales its competing requests together.
+- `EXPLORATION_MAINLINE.md`, defining the new direction and explicitly
+  preserving unresolved harmony, high-dimensional, and irrational-number
+  questions as open experimental variables.
+
+### [Changed]
+- PAL remains a supported compact topology runtime but is no longer declared
+  the only possible visualR mainline.
+- Package metadata and README now present the reservoir and PAL hypotheses as
+  coexisting experiments.
+
+---
+
 ## [v0.4.0] — released (2026-08-07)
 
 v0.4.0 proves compactness + CPU deterministic concurrency + transport
@@ -115,5 +135,5 @@ on 5 platforms.
 
 ---
 
-*Changelog maintained alongside DEVELOPMENT_PLAN_v0.5.0.md. The plan is
-the authoritative roadmap; this log records what changed.*
+*Changelog maintained alongside the active exploration mainline and preserved
+historical development plans.*
