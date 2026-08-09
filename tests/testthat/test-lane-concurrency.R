@@ -81,7 +81,10 @@ test_that("ncores=1 forces serial with fallback reported", {
   snap <- snapshot(new_topology_carrier(p))
   r <- execute_lanes_parallel(snap, lane_kernels("rotate"), "multicore",
                               ncores = 1L)
-  expect_identical(r$execution, "serial")
+  # Windows: multicore request resolves to serial-fallback (platform
+  # rule); Unix: ncores=1 forces plain serial. Either way the result is
+  # single-core and reported — never silent.
+  expect_true(r$execution %in% c("serial", "serial-fallback"))
   expect_identical(r$ncores, 1L)
 })
 

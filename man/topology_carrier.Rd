@@ -45,8 +45,9 @@ cell_to_pal(cell, pal_orig)
   \item{origin}{List; provenance/origin metadata.}
   \item{payload}{List; channel state.}
   \item{pal}{A \code{visualr_pal} object (source of truth).}
-  \item{cell}{A \code{visualr_topology_cell} (default: restored from
-    the pal).}
+  \item{cell}{A \code{visualr_topology_cell} — for \code{new_topology_carrier}
+    the default is restored from the pal; for \code{cell_to_pal} it is
+    the cell to re-encode.}
   \item{axes}{Character vector of axis names (default
     space/operator/phase/channel).}
   \item{projection}{Optional 3x3 view (the jiugong projection).}
@@ -58,7 +59,6 @@ cell_to_pal(cell, pal_orig)
   \item{deltas}{Result of \code{execute_lanes} (named list A/B/C/D/e).}
   \item{mapping_pack_id}{Character; pack for closure semantics.}
   \item{reconciled}{Result of \code{reconcile}.}
-  \item{cell}{A \code{visualr_topology_cell} to re-encode.}
   \item{pal_orig}{The ORIGINAL pal (mapping_pack_id/provenance
     continuity).}
 }
