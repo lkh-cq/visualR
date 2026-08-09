@@ -55,7 +55,7 @@ test_that("routing is distributed and excludes unavailable nodes", {
                    c("local-a", "local-b", "local-c"))
   expect_identical(colnames(preference), paste0("node-", 1:6))
   expect_identical(unname(preference[, 3]), rep(0, 3))
-  expect_identical(rowSums(preference > 0), rep(3, 3))
+  expect_identical(unname(rowSums(preference > 0)), rep(3, 3))
 })
 
 test_that("joint allocation obeys both pipe budgets and node draw limits", {
