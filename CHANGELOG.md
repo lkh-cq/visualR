@@ -6,6 +6,47 @@ most recent first. Statuses: `[Added]`, `[Changed]`, `[Fixed]`,
 
 ---
 
+## [v0.6.0] — 2026-08-13 (TCN-inspired engineering discipline)
+
+Additive reference implementation of the TCN (locuslab/TCN)
+engineering-logic dissection: growth-law constant table, shape-
+preserving block ABI, carrier transfer adapter with typed-view
+discipline, and derived emergence stack. **421 assertions / 0
+failures (existing suite), 18/18 new-function checks.**
+
+### [Added] — TCN reference discipline (A-G)
+
+- `R/growth_law.R` (D) — `growth_law()` / `growth_sequence()`:
+  frozen constant table of growth laws (dilation_power 2^i as the
+  TCN reference; gradient_batch; carrier_width / pal_path as
+  candidate_not_frozen — NOT promoted).
+- `R/block_abi.R` (E) — `block_contract()` /
+  `check_shape_preserving()`: shape-preserving block contract;
+  shape change without an explicit adaptation string is refused
+  (abi_ok = FALSE), mirroring TCN's TemporalBlock discipline.
+- `R/carrier_adapter.R` (C + A) — `carrier_adapter()`: carrier
+  transfer adapter. Match = identity pass-through; mismatch =
+  explicit border pad/crop (3x3 <-> 4x4); 3x3 -> 11x11 refused
+  (11x11 is the S_5 carrier view, must be built by carrier_11x11,
+  typed view discipline). Fail-closed on illegal widths.
+- `R/emerge_stack.R` (B + F) — `emerge_stack()`: derived emergence
+  stack from a width list (TCN num_channels analogue); per-level
+  dilation from the growth-law table + per-level block ABI records;
+  width changes carry explicit carrier_adapter notes.
+- `inst/CROSS_LANG_SHAPE_CONTRACT_v060.md` (G) — language-
+  independent shape contract (extends PAL_NESTED_CONTRACT with
+  shape rules + test vectors for future Java/C++ readers).
+- `IMPLEMENTATION_PLAN_v0.6.0.md` — A-G mapping, acceptance,
+  non-goals.
+
+### [Status]
+
+- All new functions carry status = reference_additive; no FROZEN
+  file was touched; A-G are NOT frozen semantics (B-promotion is a
+  later decision).
+
+---
+
 ## [v0.5.0] — 2026-08-09 (Topology Operator ABI + equation-core stage 1-2)
 
 Per DEVELOPMENT_PLAN_v0.5.0.md: high-dimensional operator concurrency
