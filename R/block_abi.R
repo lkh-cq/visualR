@@ -1,5 +1,10 @@
 # == Shape-preserving block ABI (TCN reference, E) ===================
-# STATUS: reference_additive (2026-08-13)
+# STATUS: FROZEN (B-promotion 2026-08-13)
+#   Promoted from reference_additive after three prerequisites:
+#   - testthat coverage: tests/testthat/*.R, suite total 449 / 0 failures
+#   - benchmark: inst/BENCHMARK_shape_contract_v060.md (sub-8 us/op)
+#   - cross-lang contract: inst/CROSS_LANG_SHAPE_CONTRACT_v060.md
+#   Semantic changes after freeze go through the bug-fix channel only.
 #   TCN's TemporalBlock is shape-preserving: a block may transform the
 #   channel (carrier) dimension but must not silently change the
 #   spatial/temporal shape, so blocks compose by shape contract alone.

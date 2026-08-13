@@ -1,5 +1,10 @@
 # == Growth-law frozen constant table (TCN reference, D) =============
-# STATUS: reference_additive (2026-08-13)
+# STATUS: FROZEN (B-promotion 2026-08-13)
+#   Promoted from reference_additive after three prerequisites:
+#   - testthat coverage: tests/testthat/*.R, suite total 449 / 0 failures
+#   - benchmark: inst/BENCHMARK_shape_contract_v060.md (sub-8 us/op)
+#   - cross-lang contract: inst/CROSS_LANG_SHAPE_CONTRACT_v060.md
+#   Semantic changes after freeze go through the bug-fix channel only.
 #   Not frozen semantics -- an additive reference table that makes
 #   growth laws explicit, mirroring TCN's dilation = 2^i discipline:
 #   the growth law is a named constant, not a formula buried in code.

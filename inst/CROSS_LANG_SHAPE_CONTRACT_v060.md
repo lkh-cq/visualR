@@ -1,6 +1,6 @@
 # Cross-Language Shape Contract v0.6.0
 
-> Status: reference_additive (2026-08-13)
+> Status: FROZEN (B-promotion 2026-08-13)
 > Extends: inst/PAL_NESTED_CONTRACT.md (frozen, v0.4.0)
 > Source of idea: TCN (locuslab/TCN) block composition discipline —
 >   blocks compose by shape contract alone.

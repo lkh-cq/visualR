@@ -1,6 +1,6 @@
 # visualR Implementation Plan v0.6.0
 
-> Status: **ACTIVE** (2026-08-13)
+> Status: **FROZEN** (B-promotion 2026-08-13, A-G promoted)
 > Baseline: v0.5.0 (main 6cd29de, 421 tests / 0 failures)
 > Source of ideas: TCN (locuslab/TCN) engineering-logic dissection,
 >   recomposed for visualR by cross-project analysis.

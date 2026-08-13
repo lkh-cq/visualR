@@ -41,9 +41,13 @@ failures (existing suite), 18/18 new-function checks.**
 
 ### [Status]
 
-- All new functions carry status = reference_additive; no FROZEN
-  file was touched; A-G are NOT frozen semantics (B-promotion is a
-  later decision).
+- B-promotion (2026-08-13): A-G promoted from reference_additive to
+  FROZEN. Prerequisites met: testthat coverage (4 files, 28
+  assertions, suite 449 / 0 failures) + benchmark
+  (inst/BENCHMARK_shape_contract_v060.md, sub-8 us/op) + cross-lang
+  shape contract. No pre-existing FROZEN file was touched during
+  v0.6.0; semantic changes after freeze go through the bug-fix
+  channel only.
 
 ---
 
