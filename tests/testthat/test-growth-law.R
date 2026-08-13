@@ -36,6 +36,7 @@ test_that("unknown law_id fails closed", {
 test_that("invalid depth fails closed", {
   expect_error(growth_law("dilation_power", -1L), "non-negative")
   expect_error(growth_law("dilation_power", "x"), "integer")
+  expect_error(growth_sequence("dilation_power", -1L), "non-negative")
 })
 
 test_that("print method renders without error", {

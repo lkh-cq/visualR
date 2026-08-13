@@ -51,6 +51,17 @@ test_that("illegal widths fail closed", {
 test_that("width mismatch between matrix and from_width fails closed", {
   expect_error(carrier_adapter(matrix(1:16, 4L, 4L), 3L, 4L),
                "from_width")
+  expect_error(carrier_adapter(matrix(1:9, 3L, 3L), 4L, 4L),
+               "from_width")
+})
+
+test_that("rules are named explicitly (auditable)", {
+  expect_equal(carrier_adapter(matrix(1:9, 3L, 3L), 3L, 3L)$rule,
+               "identity_pass_through")
+  expect_equal(carrier_adapter(matrix(1:9, 3L, 3L), 3L, 4L)$rule,
+               "border_pad_3to4")
+  expect_equal(carrier_adapter(matrix(1:16, 4L, 4L), 4L, 3L)$rule,
+               "border_crop_4to3")
 })
 
 test_that("print method renders without error", {
