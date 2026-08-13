@@ -11,6 +11,17 @@ semantics, NOT to define the interface. The frozen spec (2026-08-05)
 is the authority; R and Python are both its implementations, with R
 interactive-concurrent as the reference.
 
+## TCN structural compiler reference (experimental 2026-08-14)
+
+`locuslab/TCN` commit
+`2f8c2b817050206397458dfd1f5a25ce8a32fe65`, `TCN/tcn.py`, is the
+engineering reference for fixed tap kernels, `2^level` dilation, two-pass
+blocks, and explicit residual identity in
+`TOPOLOGY_DILATED_COMPILER_CONTRACT_v061.md`. This is a structural analogy,
+not a proof of domain equivalence. R remains visualR semantic authority;
+C99 compiles integer addresses only and Java remains an orchestration/service
+target. The upstream project is MIT licensed.
+
 ## Three-layer architecture (藏归分离)
 
 ### Layer 1: Palindrome Storage (藏 — compressed storage)

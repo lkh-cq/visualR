@@ -6,6 +6,36 @@ most recent first. Statuses: `[Added]`, `[Changed]`, `[Fixed]`,
 
 ---
 
+## [v0.6.1] — 2026-08-14 (addressed window + dilated topology compiler)
+
+Additive, `reference_experimental` migration of the structural compile
+pattern in `locuslab/TCN`: fixed ordered taps, `2^level` dilation, two
+passes per block, same-address residual edges, and shape preservation.
+This is an address/topology compiler, not a neural-weight port.
+
+### [Added]
+
+- `R/pal_window.R` — explicit distinction between complete PAL solutions
+  and open visible windows. `}{...}{` is boundary syntax outside the
+  frozen token grammar. `deepen_solution()` and `shift_open_window()`
+  require the next core explicitly and preserve an address trace.
+- `R/topology_dilated_compiler.R` — compiles every visible position and
+  dilated tap into declared graph nodes/edges. Out-of-window reads become
+  `outer_reference` or `boundary_stop` nodes; zero padding is never
+  implicit. Residual identities retain the same global address.
+- `src/topology_dilated.c` — registered C99 accelerator for the integer
+  tap schedule only. R remains semantic authority.
+- `inst/TOPOLOGY_DILATED_COMPILER_CONTRACT_v061.md` — portable IR,
+  boundary, authority, and exact R/C equivalence contract.
+
+### [Status]
+
+- The frozen v0.6.0 A–G reference functions are unchanged.
+- New window/compiler semantics remain `reference_experimental` pending
+  cross-platform CI evidence and a separate promotion decision.
+
+---
+
 ## [v0.6.0] — 2026-08-13 (TCN-inspired engineering discipline)
 
 Additive reference implementation of the TCN (locuslab/TCN)
