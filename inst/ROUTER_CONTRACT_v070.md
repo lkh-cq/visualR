@@ -41,8 +41,12 @@ fields:  merge_id: <character>          — unique
 invariants:  content is opaque (A2). Two merges equal content, different address = distinct (A6).
 ownership:   created by local (Merge). Router: carry-only. Harmony: the only consumer of content.
 ```
-> **Enforcement:** in R, `content` lives behind a closure/private env; router's accessor stack
-> returns only `envelope`. See Phase 1 spec for the discipline.
+> **Enforcement:** in R, `content` lives in a LOCKED private environment
+> (not a plain field), exposed ONLY through `merge_content()`; the old
+> `m$opaque$get_content()` shortcut is removed so the router's accessor stack
+> has no ordinary path to the payload. R cannot forbid reflection, but the
+> public path is closed (contract P1: "stop misreads at the object-system
+> level, not by comment"). See Phase 1 spec for the discipline.
 
 ### 1.3 EmergencePacket  `P`  — two layers
 ```
