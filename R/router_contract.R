@@ -68,7 +68,15 @@ new_merge <- function(content, merge_id, origin_local, logical_time) {
 # Accessor for semantic content. ONLY Harmony/local may call this; it is
 # deliberately NOT reachable from the router envelope path.
 merge_content <- function(m) {
-  stopifnot(inherits(m, "visualr_merge"))
+  if (!inherits(m, "visualr_merge")) {
+    if (is.character(m) && length(m) == 1L) {
+      stop("merge_content() received a packet_id string. Resolve the pair's ",
+           "packet_id to its Merge via run_emergence_round/.resolve_pair_merges ",
+           "before Harmony (contract 4.1).", call. = FALSE)
+    }
+    stop("merge_content() expects a visualr_merge, not ",
+         paste(class(m), collapse = "/"), call. = FALSE)
+  }
   m$opaque$get_content()
 }
 

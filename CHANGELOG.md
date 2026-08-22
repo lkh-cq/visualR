@@ -6,6 +6,77 @@ most recent first. Statuses: `[Added]`, `[Changed]`, `[Fixed]`,
 
 ---
 
+## [v0.7.0] — 2026-08-22 (Central Router & Emergence Computation Loop)
+
+Architecture-exploration mainline: defines the **Central Router** as an
+Emergence Transport Topology Generator, NOT a migrated DL model. All additive
+and CPU-native; R is semantic authority. Two-layer Emergence Packet with
+opaque payload (A2 semantic blindness); routing plan carries no semantics
+(A4); adjacency is the computational gate (A3); round atomicity via immutable
+snapshot (A5); position is computational state (A6); no accelerator-driven
+densification (A7).
+
+### [Added] — Router contract base (architecture-language)
+
+- `inst/ROUTER_CONTRACT_v070.md` (contract base — 10 shared objects with
+  exact field schema + ownership matrix one-writer-per-cell + interface seams).
+- `R/router_contract.R` — frozen shared constructors/validators:
+  `new_merge` (opaque content behind a closure env), `merge_content`,
+  `merge_id_of`, `new_routing_envelope`, `new_emergence_packet`,
+  `router_envelope` (envelope-only accessor = semantic-blindness seam),
+  `validate_emergence_packet`, `new_router_snapshot`, `new_routing_plan`,
+  `validate_router_plan` (rejects semantic fields, A4), `new_adjacency_pair`,
+  `validate_adjacency_pair`, `new_harmony_event`, `validate_harmony_event`,
+  `new_merge_result`, `new_computation_round` + print methods.
+- `IMPLEMENTATION_PLAN_v0.7.0.md` — decomposed sub-plan (22 sections).
+
+### [Added] — Phase 1 Emergence Packet ABI
+
+- `R/emergence_packet.R` — `pack_emergence()` (local-side carry; auto content-
+  integrity hash) and `unpack_for_local()` (destination-side verify, fails
+  closed on tamper / malformed envelope).
+
+### [Added] — Phase 2+3 Central Router ABI + baseline policies
+
+- `R/router_abi.R` — `route_emergence()` (+ `new_router_policy()` /
+  `get_router_policy()`): reads envelopes ONLY, returns a validated
+  RoutingPlan.
+- `R/router_policy.R` — 6 toy baselines (`identity_route`,
+  `nearest_valid_route`, `phase_route`, `resource_route`,
+  `deterministic_shuffle_route`, `random_reference_route`) + 
+  `register_baseline_router_policies()`. Edges keyed by packet_id; policies
+  are pure and order-independent.
+
+### [Added] — Phase 4 Adjacency Materialization
+
+- `R/adjacency.R` — `materialize_adjacency()` (RoutingPlan -> AdjacencyPair)
+  + `validate_adjacency()`. Fails closed on self-adjacency (A6), non-existent
+  packet, or non-open cell.
+
+### [Added] — Phase 5 Harmony ABI (interface, not theory)
+
+- `R/harmony_contract.R` — `register_harmony_operator()` / `harmony_step()`
+  + built-ins (identity / swap / pair_comp / reversible_toy). Accepts ONLY an
+  AdjacencyPair (A3); produces a fresh Merge. merge_id is deterministic
+  (pure function of the pair) so serial == PSOCK (contract 14.4).
+
+### [Added] — Phase 6+7 Round orchestrator + loop
+
+- `R/emergence_round.R` — `run_emergence_round()` (wires Phases 1-5 into one
+  atomic ComputationRound; resolves the packet_id<->Merge seam) +
+  `run_emergence_system()` (multi-round loop with structural topology
+  observability — no intelligence/AGI score).
+
+### [Added] — Tests (6-class contract system)
+
+- `tests/testthat/test-emergence-packet.R` (P1 envelope-identical),
+  `test-router-abi.R` (A4 + pluggability + snapshot-equivalence),
+  `test-adjacency-gate.R` (A3 gate), `test-harmony-boundary.R` (A3 + A6 +
+  determinism), `test-emergence-round.R` (round + trace-completeness +
+  mutation-boundary), `test-round-concurrency.R` (14.4 serial == PSOCK).
+
+---
+
 ## [v0.6.0] — 2026-08-13 (TCN-inspired engineering discipline)
 
 Additive reference implementation of the TCN (locuslab/TCN)

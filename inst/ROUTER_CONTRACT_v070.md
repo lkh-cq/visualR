@@ -168,3 +168,30 @@ Phase 7 loop:           run_emergence_system                [rounds x N]
 > They are safe to develop in parallel (separate subagents) because each only reads shared types
 > and writes into its own output type. Phase 3 policies are additionally independent of each other.
 > Phase 6/7 are integration phases; do them last, alone.
+
+---
+
+## 4. Integration seams discovered during Phase 6 (do NOT re-encounter)
+
+### 4.1 packet_id<->Merge seam (between Phase 4 and Phase 5)
+`materialize_adjacency()` (Phase 4) returns `AdjacencyPair` whose `left_merge`/`right_merge`
+are the **router-readable packet_id (character)** — because adjacency may only read the
+envelope surface (A2). `harmony_step()` (Phase 5) needs the **actual Merge objects** to read
+content (`merge_content` requires a `visualr_merge`).
+**Resolution:** the round orchestrator (`run_emergence_round`, Phase 6) resolves every pair's
+packet_id back to its packet payload Merge via `.packet_merge_map()` *before* calling Harmony.
+This is the single place both sides of the contract meet. Do not make adjacency read semantics,
+and do not make harmony accept raw packets.
+
+### 4.2 merge_id determinism (concurrency gate 14.4)
+`harmony_step()` merge_id is a **pure function** of the pair's structural identity
+(left/right id + operator + logical_time + addresses). It must NOT embed a process-global
+counter: a counter makes `Result(serial) != Result(PSOCK)` and breaks gate 14.4. Freshness is
+still guaranteed because a new `visualr_merge` OBJECT is created on every call (inputs never
+mutated). Re-adding a counter would re-break concurrency equivalence.
+
+### 4.3 policy edges must reference packet_id
+Baseline routing policies emit edges as `list(source_packet_id=, dest_packet_id=)`, and
+`.pair_indices` must be keyed on **packet_id** (not source_address) so `materialize_adjacency`
+can resolve them against `snapshot$packets`. Using address as a pairing key produces edges that
+fail the packet lookup (Phase 4 fails closed).

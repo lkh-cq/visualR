@@ -1,0 +1,80 @@
+Permission allow rule (/home/yukikaze404/.claude/settings.json): Write(/mnt/d/hermes_memory/**) is not matched by file permission checks — only Edit(path) rules are. Use Edit(/mnt/d/hermes_memory/**) instead (Edit rules cover all file-editing tools).
+Permission allow rule (/home/yukikaze404/.claude/settings.json): Write(/mnt/d/sanyuan-skills/**) is not matched by file permission checks — only Edit(path) rules are. Use Edit(/mnt/d/sanyuan-skills/**) instead (Edit rules cover all file-editing tools).
+Permission allow rule (/home/yukikaze404/.claude/settings.json): Write(/mnt/d/mirror-bus/**) is not matched by file permission checks — only Edit(path) rules are. Use Edit(/mnt/d/mirror-bus/**) instead (Edit rules cover all file-editing tools).
+Permission allow rule (/home/yukikaze404/.claude/settings.json): Write(/mnt/d/visualR/visualR/**) is not matched by file permission checks — only Edit(path) rules are. Use Edit(/mnt/d/visualR/visualR/**) instead (Edit rules cover all file-editing tools).
+Permission allow rule (/home/yukikaze404/.claude/settings.json): Write(/mnt/d/PPI/**) is not matched by file permission checks — only Edit(path) rules are. Use Edit(/mnt/d/PPI/**) instead (Edit rules cover all file-editing tools).
+# CC Review — v0.7.0 Central Router (read-only, 4-dimension)
+
+Scope reviewed: `R/router_contract.R`, `R/emergence_packet.R`, `R/router_abi.R`, `R/router_policy.R`, `R/adjacency.R`, `R/harmony_contract.R`, `R/emergence_round.R`, `inst/ROUTER_CONTRACT_v070.md`. Nothing written, no git, no network.
+
+---
+
+## Dimension 1 — Code dependency / 代码依赖性
+
+`[P1] R/router_contract.R:37` A2 opacity gate is nominal, not enforced: `merge_opaque()` stores content in a closure stored directly on the object, and `merge_content()` is a plain alias of that closure, so any consumer holding a Merge/packet can read semantic content via `m$opaque$get_content()` without passing any gate. | Evidence: `merge_content(m)` ≡ `m$opaque$get_content()`; the "enforcement seam" (`router_envelope`) is convention-only — nothing in the object model blocks `packet$payload$opaque$get_content()`. | Suggestion: store content behind a locked/private environment only Harmony/local can reach, or gate the accessor with an unforgeable capability token.
+
+`[P2] R/router_contract.R:62` Merge carries an `address` field not present in the frozen §1.2 schema (which lists `merge_id/content/origin_local/logical_time` only); `harmony_step()`, `.prepare_next_state()` and `run_emergence_system()` all depend on it. | Evidence: `new_merge()` sets `address = NULL`; the contract field list omits address (only the invariant mentions it). | Suggestion: add `address` to the frozen §1.2 schema, or drop it and keep A6 position purely on LocalState.
+
+Explicit: **no cross-FROZEN coupling found** in the reviewed files — no reference to `constants.R` / `mapping_pack.R` / `closure.R` / `topology_carrier.R`; no shared type redefinition; each file consumes only the contract ABIs (Phase 6 reads `materialize_adjacency` / `harmony_step` / `route_emergence` / `pack_emergence`, all public). The only phase-private touch is Phase 6 reading `p$payload` (the sanctioned seam, §4.1).
+
+---
+
+## Dimension 2 — System compatibility / 系统兼容性
+
+Confirmed: **base-R only** — no rlang/dplyr/data.table, no `%||%` or tidyverse operators; `order/sort(method="radix")`, `serialize(version=2L)`, `tools::md5sum`, `set.seed/sample` are all base; clean on R ≥ 4.x. No PSOCK/parallel code exists in the reviewed files, so there is no cluster-usage bug — serial/PSOCK parity rests entirely on determinism (see D3/D4).
+
+`[P2] R/router_policy.R:138` `set.seed(if (is.numeric(as.integer(round)) && ...) as.integer(round) else 1L)` warns on R ≥ 4 and silently collapses to seed 1 whenever `round` isn't integer-coercible (character, NA, or beyond int range), making all rounds share one permutation. | Evidence: `as.integer("x")` → NA_integer_ with a warning; `is.numeric(NA)` is FALSE → else-branch seeds 1. | Suggestion: validate `round` as a single integer-like value before seeding.
+
+---
+
+## Dimension 3 — Stability / fail-closed / 稳定性
+
+`[P1] R/emergence_round.R:87` + `R/router_policy.R:42-49` Unpaired packets silently vanish: for odd counts (or a lone packet), `.pair_indices` leaves one element out, and identity/nearest_valid/phase/shuffle/reference never record the leftover in `unresolved`; the round emits 0 new merges and the packet disappears with no `dropped`/`unresolved` record. | Evidence: n=3 → 1 pair + 1 leftover; `identity_route` returns no `unresolved`; `new_merges <- lapply(events, ...)` ignores unpaired packets. | Suggestion: fail closed on odd counts at round start, or route the leftover into `unresolved`.
+
+`[P1] R/emergence_round.R:150-152` When a round yields zero new merges (lone packet, or all-unresolved), `.prepare_next_state()` returns `list()` and the next `run_emergence_round(packets=list(), ...)` stops with "round needs at least one packet" — the multi-round system crashes mid-run after earlier rounds already committed. | Evidence: `.prepare_next_state(list(), ...)` → `list()`; `run_emergence_round` rejects length-0 packets. | Suggestion: treat a zero-survivor round as a clean terminal state in `run_emergence_system` (record and stop), or reject inputs that cannot produce adjacency before round 1.
+
+`[P1] R/router_policy.R:168-181` `register_baseline_router_policies()` is never invoked by any reviewed file (no `.onLoad`/`.onAttach`), so the policy registry starts empty and `route_emergence()`'s default `policy = "identity_route"` fails at runtime with "Unknown router policy" unless a caller outside this scope registers the baselines. | Evidence: only the function definition exists in scope; `route_emergence` defaults to `"identity_route"` (router_abi.R:103); `get_router_policy` fails closed on absent entries. | Suggestion: wire a `.onLoad` that calls `register_baseline_router_policies()`, or inline a static identity fallback in the default path.
+
+`[P2] R/emergence_round.R:92` `resource_left = resources` reports the round's *starting* capacity, not residual; `resource_route` decrements a local `cap` and never returns it, and its `collisions` accumulator is never written (always empty). | Evidence: line 92 passes `resources` unchanged; router_policy.R:112/128 keep `collisions <- list()` empty. | Suggestion: have the policy return residual capacity + collision records and have the round place them into `MergeResult`.
+
+`[P2] R/adjacency.R:212` `shared_local_space = as.character(space[[1L]])` unconditionally takes the first subspace; the co-residency the header claims to establish is never checked, so two ends in different subspaces still get `space[[1L]]` (silent fallback). | Evidence: no relation between `space[[1L]]` and left/right addresses; comment says "once co-residency … is established" but no such check exists. | Suggestion: compute the subspace containing both addresses and fail closed if none.
+
+`[P2] R/router_policy.R:87-95` `phase_route` documents "Group packets by logical_time; pair within each phase" but is byte-identical to `identity_route` except the evidence tag — no grouping is performed (silent fallback to identity pairing). | Evidence: body is `.pair_indices(pids)` with the same placements. | Suggestion: implement real per-phase grouping or correct the documentation.
+
+`[P2] R/router_policy.R:136-164` `deterministic_shuffle_route` and `random_reference_route` are functionally identical (same `set.seed(round)` + `sample(pids)`) and both mutate the process-global RNG, violating the documented "pure function" policy ABI (router_abi.R:31-33). | Evidence: identical bodies; `set.seed` is a process-global side effect. | Suggestion: derive the permutation from a dedicated local RNG stream, or merge the two policies.
+
+`[P2] R/emergence_round.R:106-119` + `R/router_policy.R:73-74` A6 distinct-position invariant is not enforced end-to-end: `.prepare_next_state` round-robins over `space` without checking `#new_merges <= length(space)` (`idx <- ((i-1L) %% length(space)) + 1L`), and `nearest_valid_route`'s fallback assigns `open_sorted[1L]` to every packet whose address isn't open — both produce distinct entities on one position, surfacing later as a "self-adjacency" crash in `materialize_adjacency` (fail-closed but late and undocumented). | Evidence: `idx` wraps; `pick <- open_sorted[1L]` when `is.na(at)`. | Suggestion: pre-check space capacity vs packet count and enforce per-cell capacity in policies.
+
+`[P2] R/router_contract.R:238-247` `validate_adjacency_pair` checks only that sides are non-NULL; it never requires both sides to be the same kind (Merge object vs packet_id string), so a mixed pair passes and `harmony_step` later dies with a bare `stopifnot` error instead of a clear A3 message. | Evidence: validate has only `is.null` checks; the real type gate is `merge_content`'s `stopifnot(inherits(...))`. | Suggestion: enforce consistent side typing in `validate_adjacency_pair`.
+
+`[P2] R/router_abi.R:224-236` `validate_router_plan`'s A4 gate inspects only top-level `names(plan)`; semantic fields nested inside `placements`/`adjacencies`/`policy_evidence` (e.g. a `score` inside a placement) pass silently. | Evidence: `intersect(forbidden, names(plan))` where `names(plan)` is always the fixed 6 from `new_routing_plan`. | Suggestion: recursively scan the nested lists for forbidden keys.
+
+`[P2] R/harmony_contract.R:29-30,130-133` The process-global `.visualR_harmony_state$counter` / `.next_harmony_step_id()` is dead code (never used in the merge_id path) but is exactly what contract §4.2 forbids; wiring it in later would silently re-break serial==PSOCK (14.4). | Evidence: counter incremented but never referenced in `harmony_step`; merge_id is pure structural. | Suggestion: delete the counter or annotate it as intentionally unused.
+
+`[P2] R/emergence_round.R:20-33` `.packet_merge_map` silently last-wins on duplicate packet_ids (no `exists()` check), unlike `materialize_adjacency`'s lookup which fails closed; resolution correctness currently depends on that upstream check firing first. | Evidence: `m[[pid]] <- p$payload` without a duplicate test. | Suggestion: add the same duplicate check to `.packet_merge_map` so the seam fails closed by itself.
+
+---
+
+## Dimension 4 — Port / R↔C exact-equivalence intent / 端口对接性
+
+Confirmed: R stays semantic authority (A7) — content is read only via `merge_content()` in `harmony_step`; router, policies and adjacency read structure only; no GPU/accelerator assumption anywhere. **No Merge-semantics leak to the Router found in the reviewed code paths** (the only A2 concern is that the gate is convention-only, see D1).
+
+`[P2] R/emergence_packet.R:27-31` The `envelope$integrity` hash is an R-only artifact: `serialize(..., ascii = FALSE, version = 2L)` emits native endian-dependent bytes, so `tools::md5sum` can differ for identical content across architectures, and a C port cannot reproduce `integrity` without byte-for-byte re-implementing R serialization. | Evidence: `writeBin(native bytes)` → md5; `pack_emergence` auto-fills integrity from this hash. | Suggestion: hash a canonical ASCII serialization (`ascii = TRUE`), or document `integrity` as session/port-local.
+
+---
+
+## Hard-constraint answers
+
+**packet_id ↔ Merge seam (§4.1):** The Phase-6 resolution is **correct and effectively airtight** for the round's packet set. `materialize_adjacency` pairs reference envelope `packet_id`s; `.packet_merge_map` is built from the same `packets` argument, and a pair referencing an absent id fails closed. Residual caveats: `.packet_merge_map` itself lacks a duplicate-id check (relies on `materialize_adjacency`'s upstream duplicate rejection), and the "consumed once" invariant (§1.7) is not enforced — a custom policy emitting overlapping edges would double-consume a Merge until the duplicate packet_id surfaces next round.
+
+**merge_id determinism (14.4):** **Holds** in the reviewed code. `harmony_step`'s merge_id is a pure function of (left_id, right_id, operator, logical_time, addr_key); `.visualR_harmony_state$counter` is dead code and not in the id path. Pairing order is deterministic (radix-sorted packet_ids); the two RNG policies self-reset via `set.seed(round)` so identical inputs → identical permutations across serial/PSOCK. Latent hazards if touched later: the dead counter, and the global-RNG mutation inside policies.
+
+---
+
+## Summary by severity
+
+- **P0:** 0
+- **P1:** 4 — (D1) A2 opacity gate nominal; (D3) silent odd-count packet loss; (D3) zero-survivor round crashes the system loop; (D3) baseline policies never registered → default policy fails.
+- **P2:** 12 — D1: 1 · D2: 1 · D3: 9 · D4: 1
+
+No file written, no git touched, nothing outside the 8 scoped files read.
