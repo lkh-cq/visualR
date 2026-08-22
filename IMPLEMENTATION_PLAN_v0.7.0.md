@@ -131,9 +131,16 @@ tie-break). BUT it must be a **routing policy plugin**, never hard-coded into th
 ## 6. Phase 0 — Concept freeze (object boundary)
 
 Goal: freeze object boundaries BEFORE writing any Router algorithm. Gate: no two objects may overlap.
+
+**Architecture-language contract base** (the parallel-dev foundation) lives at:
+`inst/ROUTER_CONTRACT_v070.md` — it defines every shared type's exact field schema, ownership,
+invariant, the ownership matrix (at most one writer per cell), and the interface seams that make
+parallel fan-out safe. Modify it only through a single review gate.
+
 Postulate files:
-- `inst/ROUTER_ARCHITECTURE_AXIOMS_v070.md`
-- `inst/ROUTER_TERMINOLOGY_v070.md`
+- `inst/ROUTER_CONTRACT_v070.md`  (the frozen base — authoritative)
+- `inst/ROUTER_ARCHITECTURE_AXIOMS_v070.md`  (axioms, derived)
+- `inst/ROUTER_TERMINOLOGY_v070.md`  (terms, derived)
 
 Objects that MUST be formally defined (with disjoint responsibilities):
 ```
