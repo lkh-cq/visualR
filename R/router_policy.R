@@ -118,16 +118,26 @@ nearest_valid_route <- function(envelopes, snapshot) {
 }
 
 # -- policy 3: phase_route --------------------------------------------
-# Group packets by logical_time; pair within each phase. Reflects Q4's
-# "adjacency lifetime = one logical round" default.
+# Group packets by logical_time (phase) and pair WITHIN each phase. Reflects
+# Q4's "adjacency lifetime = one logical round" default: packets born in the
+# same round are adjacent; packets from different rounds are NOT paired.
 phase_route <- function(envelopes, snapshot) {
-  pids <- vapply(envelopes, function(e) as.character(e$packet_id), character(1L))
-  # deterministic pairing by packet_id; phase is recorded as evidence
-  pr <- .pair_indices(pids)
+  # stable phase key per envelope
+  phase <- vapply(envelopes, function(e) as.character(e$logical_time), character(1L))
+  pid <- vapply(envelopes, function(e) as.character(e$packet_id), character(1L))
   placements <- Map(function(e) list(packet_id = e$packet_id, address = e$source_address),
                     envelopes)
-  list(placements = placements, adjacencies = pr$adjacencies,
-       unresolved = pr$unresolved,
+  # pair within each phase group
+  adjacencies <- list()
+  unresolved <- character(0L)
+  for (ph in unique(phase)) {
+    group_pids <- pid[phase == ph]
+    pr <- .pair_indices(group_pids)
+    adjacencies <- c(adjacencies, pr$adjacencies)
+    unresolved <- c(unresolved, pr$unresolved)
+  }
+  list(placements = placements, adjacencies = adjacencies,
+       unresolved = unresolved,
        policy_evidence = list(policy = "phase_route"))
 }
 

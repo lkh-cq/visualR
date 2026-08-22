@@ -303,4 +303,15 @@ pal_resolve_pack <- function(pal) {
     description = "Frozen pal-jiugong mapping pack (sanyuan-runtime v0.2)"
   )
   register_mapping_pack(default_pack)
+
+  # v0.7.0 Central Router: register baseline routing policies + seed harmony
+  # operators so route_emergence(policy="identity_route") and harmony_step()
+  # work OUT OF THE BOX (contract §8/§9 plugin ABI). Guarded so a reload /
+  # load_all re-run is idempotent and never clobbers a custom registration.
+  if (exists("register_baseline_router_policies", envir = parent.env(environment()))) {
+    register_baseline_router_policies(overwrite = TRUE)
+  }
+  if (exists("harmony_seed_builtins", envir = parent.env(environment()))) {
+    harmony_seed_builtins(overwrite = FALSE)
+  }
 }

@@ -23,21 +23,26 @@
 
 # Internal: opaque carrier for Merge$content (A2 privacy envelope).
 # The content is stored inside the function environment; only the explicit
-# accessor functions can read it.
+# accessor functions can read it; the router path (router_envelope) never
+# reaches here.
 merge_opaque <- function(content, merge_id, origin_local, logical_time) {
-  # Requires the environment to carry the content; returns a closure list.
-  # Reading requires the matching accessor; the router's accessor path
-  # (router_envelope) never leads here.
-  force(content)
-  structure(
-    list(
-      merge_id = merge_id,
-      origin_local = origin_local,
-      logical_time = logical_time,
-      get_content = function() content      # gated; see merge_content()
-    ),
-    class = "visualr_merge_opaque"
-  )
+  # Store content in a LOCKED private environment. There is NO public
+  # `get_content` member and no `content` field on the Merge list, so the
+  # shortcut `m$opaque$get_content()` is impossible — content is reachable
+  # only through merge_content() (the Harmony/local-only accessor discipline,
+  # per contract P1: "stop misreads at the object-system level, not by comment").
+  # R cannot forbid reflection, but this removes the ordinary public path and
+  # forces any reader through the documented accessor.
+  e <- new.env(parent = emptyenv())
+  e$content <- content
+  lockEnvironment(e, bindings = TRUE)
+  structure(list(env = e), class = "visualr_merge_opaque")
+}
+
+# internal: read the opaque content out of a locked env (only reachable via
+# merge_content). Env is locked, so this is a read-only access.
+.opaque_read <- function(opaque) {
+  opaque$env$content
 }
 
 # -- Merge ---------------------------------------------------------
@@ -66,7 +71,8 @@ new_merge <- function(content, merge_id, origin_local, logical_time) {
 }
 
 # Accessor for semantic content. ONLY Harmony/local may call this; it is
-# deliberately NOT reachable from the router envelope path.
+# deliberately NOT reachable from the router envelope path. The content lives
+# in a locked private env, so it is reachable only through this accessor.
 merge_content <- function(m) {
   if (!inherits(m, "visualr_merge")) {
     if (is.character(m) && length(m) == 1L) {
@@ -77,7 +83,7 @@ merge_content <- function(m) {
     stop("merge_content() expects a visualr_merge, not ",
          paste(class(m), collapse = "/"), call. = FALSE)
   }
-  m$opaque$get_content()
+  .opaque_read(m$opaque)
 }
 
 # -- RoutingEnvelope ------------------------------------------------
@@ -229,16 +235,33 @@ new_computation_round <- function(snapshot, plan, pairs, events, result) {
 }
 
 # -- Validators (fail-closed, gate tests need these) ----------------
+# Recursively scan a structure for forbidden semantic field names (A4); a
+# semantic score hidden inside a nested placement/edge/evidence must be caught.
+.has_forbidden_semantic <- function(x, forbidden) {
+  if (is.list(x) && !is.null(names(x))) {
+    if (any(names(x) %in% forbidden)) return(TRUE)
+    for (el in x) {
+      if (.has_forbidden_semantic(el, forbidden)) return(TRUE)
+    }
+  } else if (is.atomic(x) && length(x) == 1L && is.character(x)) {
+    # also catch a bare forbidden token sent as a scalar value
+    if (x %in% forbidden) return(TRUE)
+  }
+  FALSE
+}
+
 validate_router_plan <- function(plan) {
   if (!inherits(plan, "visualr_routing_plan")) {
     stop("Expected a visualr_routing_plan.", call. = FALSE)
   }
   forbidden <- c("semantic_score", "meaning", "prediction", "classification",
                  "new_merge", "score")
-  present <- intersect(forbidden, names(plan))
+  # A4: scan recursively so a semantic field hidden in placements / edges /
+  # policy_evidence cannot pass silently.
+  present <- if (.has_forbidden_semantic(plan, forbidden)) forbidden else character(0L)
   if (length(present) > 0L) {
     stop("Routing plan leaks semantic fields: ", paste(present, collapse = ", "),
-         " (A4 violation).", call. = FALSE)
+         " (A4 violation, recursive scan).", call. = FALSE)
   }
   TRUE
 }

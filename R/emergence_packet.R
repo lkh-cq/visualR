@@ -24,10 +24,13 @@
 # (tools::md5sum is base R). Same content => same hash => reproducible.
 .emergence_content_hash <- function(merge_obj) {
   stopifnot(inherits(merge_obj, "visualr_merge"))
-  bytes <- serialize(merge_content(merge_obj), NULL, ascii = FALSE, version = 2L)
+  # ascii=TRUE gives a byte-order-independent serialization so the integrity
+  # hash is reproducible across endianness/architectures (port-reproducible,
+  # D4 / contract "R<->C exact-equivalence" — a C/other reader can recompute it).
+  bytes <- serialize(merge_content(merge_obj), NULL, ascii = TRUE, version = 2L)
   tf <- tempfile()
   on.exit(unlink(tf), add = TRUE)
-  writeBin(bytes, tf)
+  writeBin(charToRaw(paste(bytes, collapse = "")), tf)
   h <- unname(tools::md5sum(tf))
   if (length(h) != 1L || is.na(h)) {
     stop("Failed to compute content integrity hash (fail closed).", call. = FALSE)
