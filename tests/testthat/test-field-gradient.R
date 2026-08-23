@@ -7,8 +7,8 @@ test_that("constant two-dimensional field has zero gradient", {
 
   expect_s3_class(grad, "visualr_field_gradient")
   expect_equal(grad$data$magnitude, rep(0, 9L))
-  expect_equal(grad$data$radial[!is.na(grad$data$radial)], 0)
-  expect_equal(grad$data$tangential[!is.na(grad$data$tangential)], 0)
+  expect_true(all(grad$data$radial[!is.na(grad$data$radial)] == 0))
+  expect_true(all(grad$data$tangential[!is.na(grad$data$tangential)] == 0))
 })
 
 test_that("affine field gradient matches analytic interior values", {

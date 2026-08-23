@@ -59,6 +59,6 @@ test_that("gradient evidence is source-bound and tamper-evident", {
                              boundary_state = "closed")
   gradient <- field_gradient(field)
   expect_true(bias_features(field, gradient = gradient)[["B_gradient"]] > 0)
-  gradient$data$magnitude[[1L]] <- gradient$data$magnitude[[1L]] + 1
+  gradient$data$address_id[[1L]] <- "tampered-address"
   expect_error(bias_features(field, gradient = gradient), "gradient hash")
 })
