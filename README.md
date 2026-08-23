@@ -5,13 +5,17 @@ runtime for the consciousness-bus mapping layer.
 
 > Palindromic syntax stores topology; matrices materialize computation.
 
-## Development target
+## Development baseline and current layer
 
-The frozen development target is **visualR v0.5.0**:
+The frozen development baseline is **visualR v0.5.0**:
 
 **Palindrome storage -> Jiugong/operator state -> R/CPU concurrent compute -> closure/fold-back -> compact package storage and transport.**
 
 See [`DEVELOPMENT_PLAN_v0.5.0.md`](DEVELOPMENT_PLAN_v0.5.0.md) for the authoritative development-plan baseline.
+
+The current additive layer is **v0.6.1 `reference_experimental`**:
+complete/open PAL windows plus a TCN-pattern dilated address compiler.
+It does not alter the frozen v0.6.0 A–G reference functions.
 
 ## Root contract
 
@@ -24,6 +28,12 @@ See [`DEVELOPMENT_PLAN_v0.5.0.md`](DEVELOPMENT_PLAN_v0.5.0.md) for the authorita
   fail closed).
 - **R interactive + concurrent computation is the BENCHMARK**; Python
   `mapping_pack.py` is glue/cross-validation only.
+- **Open boundaries stay explicit**: `}{...}{` means an enclosing
+  solution exists but is not listed. It is never interpreted as zero
+  padding or admitted into the frozen token grammar.
+- **Language roles stay separated**: R defines semantics, C99 may
+  accelerate integer address schedules under exact equivalence tests,
+  and Java remains an orchestration/service target.
 
 ## Three-layer architecture (藏归分离)
 
@@ -36,6 +46,30 @@ See [`DEVELOPMENT_PLAN_v0.5.0.md`](DEVELOPMENT_PLAN_v0.5.0.md) for the authorita
    transition policy, emergence operators, Gamma generator, peel
    chain, 11x11 carrier, unified carrier dispatch
    (`materialize`).
+
+## Address-window and dilated compile reference
+
+```r
+# Complete solution: deepen only with an explicit next core
+p <- pal_parse("{A{B}A}")
+pal_encode(deepen_solution(p, "c"))
+#> "{A{B{c}B}A}"
+
+# Open fixed-radius window: shift focus without fabricating outer content
+w <- open_window_parse("}{B{C{D}C}B}{", origin = 10L)
+w2 <- shift_open_window(w, "E")
+open_window_encode(w2)
+#> "}{C{D{E}D}C}{"
+
+# Compile fixed taps + 2^level dilation + explicit residual/frontier edges
+plan <- compile_dilated_topology(w2, levels = 3L, engine = "r")
+validate_dilated_plan(plan)
+```
+
+The compiler migrates a structural pattern from
+[`locuslab/TCN`](https://github.com/locuslab/TCN), not neural weights or
+PyTorch semantics. See
+[`inst/TOPOLOGY_DILATED_COMPILER_CONTRACT_v061.md`](inst/TOPOLOGY_DILATED_COMPILER_CONTRACT_v061.md).
 
 ## Interactive + concurrent entry points
 
@@ -64,9 +98,18 @@ interact("{A{B{C{D{e}D}C}B}A}", "orbit_rotate")   # full loop -> compute result
   `pal_compact()` (resident compact form). All 7 Efficiency-gate
   measurements published. Cross-language nested-logic contract
   (`inst/PAL_NESTED_CONTRACT.md`) reserved for future readers.
+- **v0.5.0: Topology Operator ABI** — topology carrier, concurrent
+  lanes, barrier/reconcile/commit, and equation-core stages.
+- **v0.6.0: TCN-inspired engineering discipline** — frozen growth-law,
+  shape ABI, carrier adapter, and derived emergence-stack references.
+- **v0.6.1: Addressed window + dilated topology compiler** —
+  `reference_experimental`; explicit frontier nodes and registered C99
+  tap-schedule acceleration with R/C equality tests.
 
-1137 test expectations, `R CMD check` clean (0 errors / 0 warnings /
-0 notes). Pure base R + `parallel`; zero external dependencies.
+R package checks run on Linux, Windows, and macOS across release,
+oldrel, and devel. Runtime semantics use base R + `parallel`; optional
+storage/benchmark packages remain in `Suggests`, and v0.6.1 adds one
+registered C99 address kernel.
 
 ## License
 
@@ -76,8 +119,9 @@ MIT
 
 Two one-command entry points prove the complete closed loop is usable
 and reproducible — the reference baseline for all later work
-(implementation language going forward: **Java**, not Python; Python
-`mapping_pack.py` is historical comparison only, no new investment):
+(R remains semantic authority; C is an acceleration fabric; Java is the
+orchestration/service target. Python `mapping_pack.py` is historical
+cross-validation only):
 
 ```r
 # 1. Full closed loop: PAL -> expand -> compute -> closure -> fold-back
