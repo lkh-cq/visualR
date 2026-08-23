@@ -384,8 +384,8 @@ All pass => `reference_experimental -> B-promotion -> FROZEN`.
 | 10 no silent padding | ✅ | `test-router-blindness.R` |
 | 11 no hidden semantic aggregation | ✅ | `test-router-blindness.R` |
 | 12 all error paths fail closed | ✅ | `test-fail-closed.R` |
-| 13 R is semantic authority | ✅ | no external semantic dependency |
-| 14 native accelerator unchanged | ✅ | CPU-native, no accelerator code |
+| 13 R is semantic authority | ✅ | `test-r-authority.R` (base-R content type, no shell/network in v0.7 path) |
+| 14 native accelerator unchanged | ✅ | `test-r-authority.R` (no .Call/.C/.Fortran/.External, no src/ .o/.so) |
 | 15 >= 2 Router policies plug in w/o Harmony edit | ✅ | `test-router-abi.R` (6 policies) |
 | 16 >= 2 Harmony baselines plug in w/o Router edit | ✅ | `test-harmony-boundary.R` (4 baselines) |
 
