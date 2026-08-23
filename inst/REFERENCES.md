@@ -22,6 +22,52 @@ not a proof of domain equivalence. R remains visualR semantic authority;
 C99 compiles integer addresses only and Java remains an orchestration/service
 target. The upstream project is MIT licensed.
 
+Primary sources:
+
+- [locuslab/TCN `TCN/tcn.py`](https://github.com/locuslab/TCN/blob/master/TCN/tcn.py)
+  — two dilated convolutions per `TemporalBlock`, explicit residual
+  adaptation, and `dilation_size = 2 ** i`.
+- [Bai, Kolter, and Koltun (2018), arXiv:1803.01271](https://arxiv.org/abs/1803.01271)
+  — upstream sequence-modelling study associated with the repository.
+
+## Numeric/spectral reference (experimental 2026-08-19)
+
+The v0.6.2 spectral implementation uses base R's multidimensional
+`stats::fft()` and applies visualR's declared unitary scaling in both
+directions. The [official R FFT documentation](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/fft.html)
+states that the forward and inverse transforms are unnormalized and
+that arrays receive a multivariate spatial transform. This is why the
+v0.6.2 wrapper divides each direction by `sqrt(N)` and verifies
+round-trip and Parseval behavior in focused tests.
+
+The source establishes transform mechanics only. Boundary policy,
+address order, completeness, polar sampling weights, gradient stencils,
+and bias-evidence meaning are visualR contracts and are not attributed
+to R or to the TCN project.
+
+## Nested syntax and R/CPU engineering references (M2, 2026-08-24)
+
+- [Knuth, *Semantics of Context-Free Languages*](https://doi.org/10.1007/BF01692511)
+  motivates keeping inherited/synthesized attributes around a grammar rather
+  than smuggling runtime state into terminal symbols. visualR applies this as
+  an engineering discipline; it does not claim a new PAL grammar formalism.
+- [Huet, *The Zipper*](https://doi.org/10.1017/S0956796897002864)
+  supplies the focus-plus-context pattern used to interpret addressed open PAL
+  windows. visualR retains its specialized path/window representation instead
+  of adding a general tree editor.
+- [Writing R Extensions](https://cran.r-project.org/doc/manuals/r-devel/R-exts.html)
+  is the portability and registered-native-interface authority. Native code is
+  limited to measured hotspots and must retain an R reference implementation.
+- [R `parallel` reference manual](https://cran.r-project.org/web/packages/parallel/parallel.pdf)
+  documents platform differences between fork and socket execution. Correctness
+  must not depend on fork-only behavior or load-balanced result order.
+- [`Rprof` documentation](https://stat.ethz.ch/R-manual/R-devel/library/utils/html/Rprof.html)
+  and [Writing R Extensions memory profiling](https://cran.r-project.org/doc/manuals/r-devel/R-exts.html#Profiling-R-code-for-memory-use)
+  define the evidence gate for further native or allocation optimization.
+
+These sources justify contract and measurement choices only. They do not
+promote v0.6.2, prove universal speedup, or authorize FFTW/GPU dependencies.
+
 ## Three-layer architecture (藏归分离)
 
 ### Layer 1: Palindrome Storage (藏 — compressed storage)

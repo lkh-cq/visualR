@@ -70,6 +70,20 @@ A conforming encoder MUST:
 - Symmetry is structural: every open `{ symbol` has a matching `} symbol {` ... closing `symbol }`.
 - The core is the single center symbol; shells are the symmetric outer symbols.
 
+### 6.1 Focus/context and attribute discipline
+
+An open addressed window is a specialized focus/context view: the visible PAL
+path is the focus, while `origin`, local/global addresses, boundary state, and
+opaque outer references are context attributes. These attributes MUST NOT be
+encoded as PAL symbols or admitted into the frozen grammar.
+
+Likewise, numeric values, units, coordinate spacing, signal cadence, hashes,
+spectral coefficients, gradients, and review evidence are derived or
+caller-declared attributes. A reader may transport them in their own typed
+records, but parsing PAL text must never synthesize them from token spelling or
+nesting depth. This preserves full-token grammar equality while allowing local
+addressed computation without copying or redefining the entire state.
+
 ## 7. Test vectors (for future readers)
 
 | Input | Expected path | Notes |
