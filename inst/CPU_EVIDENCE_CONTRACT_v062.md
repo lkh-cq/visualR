@@ -34,7 +34,8 @@ materialization so it isolates the only native hotspot currently authorized.
 
 ## CI artifact
 
-The Linux/R-release job writes:
+The Linux/R-release job runs `.github/scripts/ci-v062-benchmark.R` after
+package installation and writes:
 
 ```text
 benchmark-evidence/numeric-observers.csv

@@ -80,7 +80,7 @@ jobs:
       - name: v0.6.2 CPU evidence
         if: runner.os == 'Linux' && matrix.config.r == 'release'
         shell: bash
-        run: Rscript tests/ci-v062-benchmark.R
+        run: Rscript .github/scripts/ci-v062-benchmark.R
 
       - name: Upload v0.6.2 CPU evidence
         if: runner.os == 'Linux' && matrix.config.r == 'release'
