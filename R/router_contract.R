@@ -237,12 +237,17 @@ new_computation_round <- function(snapshot, plan, pairs, events, result) {
 # -- Validators (fail-closed, gate tests need these) ----------------
 # Recursively scan a structure for forbidden semantic field names (A4); a
 # semantic score hidden inside a nested placement/edge/evidence must be caught.
+# Descends into EVERY list (named or unnamed) — an unnamed list of placements
+# must still be scanned for a nested forbidden field.
 .has_forbidden_semantic <- function(x, forbidden) {
-  if (is.list(x) && !is.null(names(x))) {
-    if (any(names(x) %in% forbidden)) return(TRUE)
+  if (is.list(x)) {
+    nm <- names(x)
+    if (!is.null(nm) && any(nm %in% forbidden)) return(TRUE)
     for (el in x) {
       if (.has_forbidden_semantic(el, forbidden)) return(TRUE)
     }
+  } else if (!is.null(names(x)) && any(names(x) %in% forbidden)) {
+    if (all(sapply(x, function(v) is.atomic(v) && length(v) == 1L))) return(TRUE)
   } else if (is.atomic(x) && length(x) == 1L && is.character(x)) {
     # also catch a bare forbidden token sent as a scalar value
     if (x %in% forbidden) return(TRUE)

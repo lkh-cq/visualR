@@ -369,6 +369,29 @@ Before freeze, prove all 15:
 
 All pass => `reference_experimental -> B-promotion -> FROZEN`.
 
+### Audit status (v0.7.0 current)
+| gate | status | evidence |
+|------|--------|----------|
+| 1 five layers separated | ✅ | ownership matrix, each module consumes only contract ABIs |
+| 2 Router cannot read Merge semantics | ✅ | `test-router-blindness.R` (adversarial) — content in locked env, policy receives envelopes only |
+| 3 Router produces no Merge | ✅ | `validate_router_plan` A4 recursive scan |
+| 4 Harmony accepts only legal adjacency | ✅ | `test-adjacency-gate.R` |
+| 5 one immutable snapshot per round | ✅ | `new_router_snapshot` + round orchestration A5 |
+| 6 serial/parallel semantics identical | ✅ | `test-round-concurrency.R` |
+| 7 new Merge fully traceable | ✅ | `test-emergence-trace.R` (+ enriched trace) |
+| 8 address is computational state | ✅ | `test-adjacency-gate.R` A6 |
+| 9 no silent fallback | ✅ | `test-router-blindness.R` gate 9/10/11 |
+| 10 no silent padding | ✅ | `test-router-blindness.R` |
+| 11 no hidden semantic aggregation | ✅ | `test-router-blindness.R` |
+| 12 all error paths fail closed | ✅ | `test-fail-closed.R` |
+| 13 R is semantic authority | ✅ | no external semantic dependency |
+| 14 native accelerator unchanged | ✅ | CPU-native, no accelerator code |
+| 15 >= 2 Router policies plug in w/o Harmony edit | ✅ | `test-router-abi.R` (6 policies) |
+| 16 >= 2 Harmony baselines plug in w/o Router edit | ✅ | `test-harmony-boundary.R` (4 baselines) |
+
+Promotion ready → next: `reference_experimental -> B-promotion -> FROZEN` (needs
+mantainer sign-off + CHANGELOG promotion marker per project convention).
+
 ---
 
 ## 19. Core research question of the next stage

@@ -193,9 +193,16 @@ harmony_step <- function(pair, operator = "identity") {
   # New Merge lives in the shared space where both inputs co-reside.
   result$address <- pair$shared_local_space
 
-  # Trace records the producing operator + logical round (trace completeness).
-  trace <- c(pair$route_trace, sprintf("harmony:%s@t=%s", operator,
-                                       pair$logical_time))
+  # Trace records the producing operator + logical round AND the source merges
+  # + addresses, so a new Merge is FULLY traceable from its trace alone (gate 7:
+  # source locals / packet / router policy / destination position / adjacency /
+  # harmony operator / logical round).
+  trace <- c(pair$route_trace,
+             sprintf("harmony:%s@t=%s", operator, pair$logical_time),
+             sprintf("src=%s@%s~%s@%s", left_id, pair$left_address,
+                     right_id, pair$right_address),
+             sprintf("op=%s", operator))
+  trace <- trace[!is.na(trace) & nzchar(trace)]
   if (is.null(trace)) trace <- character(0L)
 
   ev <- new_harmony_event(pair, operator, result, trace = trace)

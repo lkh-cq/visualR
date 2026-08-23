@@ -75,6 +75,19 @@ densification (A7).
   determinism), `test-emergence-round.R` (round + trace-completeness +
   mutation-boundary), `test-round-concurrency.R` (14.4 serial == PSOCK).
 
+### [Added] — Promotion Gate proof tests (16-item gate, §18)
+
+- `tests/testthat/test-router-blindness.R` — adversarial semantic-isolation
+  (a policy that ATTEMPTS to read payload semantics, and a direct
+  `router_envelope` access check) + recursive A4 scan (gate 9/10/11) +
+  no-silent-padding/aggregation on the round result.
+- `tests/testthat/test-emergence-trace.R` — gate 7 trace completeness: every
+  new Merge reconstructs sources / policy / position / operator / round.
+- `tests/testthat/test-fail-closed.R` — gate 12: enumerated `stop()` paths
+  across all v0.7 modules, each asserted to throw.
+- Harmony event trace enriched to carry `src=<id>@<addr>~<id>@<addr>` and
+  `op=<operator>` so a new Merge is fully traceable from its trace alone.
+
 ---
 
 ## [v0.6.0] — 2026-08-13 (TCN-inspired engineering discipline)
