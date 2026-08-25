@@ -112,3 +112,21 @@ emergence_position_rule <- function(policy, left_pos, right_pos) {
     )
   )
 }
+
+# -- arbitration-aware round wrapper (report: Router as arbitration plugin)
+# Runs detect_cell_collisions + arbitrate + apply BEFORE adjacency/harmony,
+# then delegates to run_transmission_round on the deconflicted set.
+run_transmission_round_arbitrated <- function(states, predicate, metric_name,
+                                              transport_law_name, logical_time,
+                                              harmony_operator = "identity") {
+  coll <- detect_cell_collisions(states)
+  if (length(coll)) {
+    arb <- arbitrate_collisions(states, coll)
+    deconflicted <- apply_arbitration(states, arb)$states
+  } else {
+    deconflicted <- states
+  }
+  run_transmission_round(deconflicted, predicate, metric_name,
+                         transport_law_name, logical_time,
+                         harmony_operator = harmony_operator)
+}
