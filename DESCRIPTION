@@ -1,8 +1,8 @@
 Package: visualR
 Type: Package
 Title: Palindrome-Addressed Topological Runtime
-Version: 0.7.0
-Date: 2026-08-22
+Version: 0.7.9001
+Date: 2026-08-25
 Authors@R:
     person("lkh-cq", given = NULL, email = "lkh-cq@users.noreply.github.com", role = c("aut", "cre"))
 Author: lkh-cq [aut, cre]
@@ -30,10 +30,10 @@ Description: A palindrome-addressed topological runtime with three-layer
     (carrier_11x11 / Gamma lowercasing / closure recurse) promoted to
     FROZEN with added coverage, metadata/lifecycle aligned. R
     interactive-concurrent is the benchmark; Python mapping_pack.py is
-    glue/cross-validation only. v0.6.1 adds explicit complete/open PAL
-    window states and a TCN-pattern dilated topology compiler. R remains
-    semantic authority; a registered C99 routine accelerates integer tap
-    schedule generation under exact R-to-C equivalence tests.
+    glue/cross-validation only. v0.8 adds a geometric transmission layer:
+    PositionState, immutable TransmissionPath, MetricLaw/TransportLaw
+    registries, geometric adjacency predicate, and an arbitration-only
+    collision plugin.
 License: MIT + file LICENSE
 Encoding: UTF-8
 NeedsCompilation: yes
