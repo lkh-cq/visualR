@@ -1,10 +1,10 @@
-# == v0.9 D1 — Geometric Adjacency Authority ========================
-# Contract (DEVELOPMENT_PLAN_v0.9.0 §3 D1):
+# == v0.9 D1 -- Geometric Adjacency Authority ========================
+# Contract (DEVELOPMENT_PLAN_v0.9.0 Section 3 D1):
 #   The geometric predicate is the ONLY source of computation
 #   eligibility. Router-plan pairs are candidates; they enter Harmony
 #   only after passing the predicate. A plan edge that fails the
 #   predicate is a HARD error in strict mode and a recorded rejection
-#   in audit mode — never a silent drop.
+#   in audit mode -- never a silent drop.
 # Position resolution for envelopes: an envelope's source_address is its
 #   position address. Callers supply a positions list mapping packet_id
 #   -> PositionState. Missing mapping = fail closed (we cannot verify
@@ -54,7 +54,7 @@ filter_plan_through_predicate <- function(plan_pairs, snapshot,
     if (is.null(src_ps) || is.null(dst_ps)) {
       stop(sprintf(
         paste0("Edge %d (%s -> %s): no PositionState for address '%s' ",
-               "or '%s' (cannot verify eligibility — fail closed)."),
+               "or '%s' (cannot verify eligibility -- fail closed)."),
         i, src_id, dst_id, src_key, dst_key), call. = FALSE)
     }
 

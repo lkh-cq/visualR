@@ -219,8 +219,8 @@ fit_reference_threshold <- function(reference, alpha = 0.05) {
   out <- structure(
     list(
       feature_names = names(reference),
-      center = setNames(parameters[, "center"], names(reference)),
-      scale = setNames(parameters[, "scale"], names(reference)),
+      center = stats::setNames(parameters[, "center"], names(reference)),
+      scale = stats::setNames(parameters[, "scale"], names(reference)),
       alpha = as.numeric(alpha),
       threshold = as.numeric(threshold),
       aggregation = "max_absolute_robust_score",

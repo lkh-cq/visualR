@@ -10,17 +10,32 @@ v070_files <- function() {
     "R/router_policy.R","R/adjacency.R","R/harmony_contract.R",
     "R/emergence_round.R")
 }
-# Read a package-source file robustly (works from any CWD): resolve "R/xxx.R"
-# by walking up from getwd() until "R/router_contract.R" exists.
+# Read a module's code by REFLECTION on the installed/loaded namespace, not
+# by walking the source tree: R CMD check runs tests from an INSTALLED copy
+# whose relative layout differs (and source paths are machine-private).
+# Gate semantics unchanged — we still inspect the actual running code.
+.v070_ns_fns <- list(
+  "R/router_contract.R"   = c("new_merge", "new_routing_envelope"),
+  "R/emergence_packet.R"  = c("pack_emergence"),
+  "R/router_abi.R"        = c("route_emergence"),
+  "R/router_policy.R"     = c("identity_route"),
+  "R/adjacency.R"         = c("materialize_adjacency"),
+  "R/harmony_contract.R"  = c("harmony_step"),
+  "R/emergence_round.R"   = c("run_emergence_round")
+)
 v070_source <- function(f) {
-  # absolute-ref via known repo root candidates
-  roots <- c(getwd(), dirname(getwd()), file.path(getwd(), ".."),
-             "/mnt/d/visualR/visualR")
-  for (r in roots) {
-    p <- file.path(r, f)
-    if (file.exists(p)) return(paste(readLines(p, warn = FALSE), collapse = "\n"))
-  }
-  stop(sprintf("cannot locate %s (repo root not found)", f))
+  ns <- asNamespace("visualR")
+  fns <- .v070_ns_fns[[f]]
+  if (is.null(fns)) stop(sprintf("no reflection map for %s", f), call. = FALSE)
+  parts <- lapply(fns, function(fn) {
+    obj <- get0(fn, envir = ns, inherits = FALSE)
+    if (is.null(obj)) {
+      stop(sprintf("%s: %s not in namespace (fail closed)", f, fn),
+           call. = FALSE)
+    }
+    paste(deparse(obj), collapse = "\n")
+  })
+  paste(parts, collapse = "\n")
 }
 
 test_that("gate 14: v0.7 modules contain NO native entry points (no accelerator)", {

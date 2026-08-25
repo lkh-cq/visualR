@@ -21,7 +21,7 @@
 .gradient_spacing <- function(spacing, domain) {
   expected <- if (identical(domain, "path")) "address" else c("row", "col")
   if (is.null(spacing)) {
-    return(setNames(rep.int(1, length(expected)), expected))
+    return(stats::setNames(rep.int(1, length(expected)), expected))
   }
   if (!is.numeric(spacing) || length(spacing) != length(expected) ||
       anyNA(spacing) || any(!is.finite(spacing)) || any(spacing <= 0)) {
@@ -34,7 +34,7 @@
     stop(sprintf("Named `spacing` must use: %s.",
                  paste(expected, collapse = ", ")), call. = FALSE)
   }
-  setNames(as.numeric(spacing), expected)
+  stats::setNames(as.numeric(spacing), expected)
 }
 
 .gradient_mask_policy <- function(masked_policy) {
@@ -242,10 +242,10 @@ field_gradient <- function(field, chart = NULL, spacing = NULL,
     delta <- diff(global)
     coordinate_delta <- delta * unname(spacing[[1L]])
     edges <- data.frame(
-      from_address_id = head(field$address$address_id, -1L),
-      to_address_id = tail(field$address$address_id, -1L),
-      from_global = head(global, -1L),
-      to_global = tail(global, -1L),
+      from_address_id = utils::head(field$address$address_id, -1L),
+      to_address_id = utils::tail(field$address$address_id, -1L),
+      from_global = utils::head(global, -1L),
+      to_global = utils::tail(global, -1L),
       address_delta = delta,
       coordinate_delta = coordinate_delta,
       gradient = diff(values) / coordinate_delta,
