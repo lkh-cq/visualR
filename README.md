@@ -7,15 +7,21 @@ runtime for the consciousness-bus mapping layer.
 
 ## Development baseline and current layer
 
-The frozen development baseline is **visualR v0.5.0**:
+The frozen runtime baseline is **visualR v0.5.0**:
 
 **Palindrome storage -> Jiugong/operator state -> R/CPU concurrent compute -> closure/fold-back -> compact package storage and transport.**
 
-See [`DEVELOPMENT_PLAN_v0.5.0.md`](DEVELOPMENT_PLAN_v0.5.0.md) for the authoritative development-plan baseline.
+See [`DEVELOPMENT_PLAN_v0.5.0.md`](DEVELOPMENT_PLAN_v0.5.0.md) for that
+historical frozen baseline and
+[`DEVELOPMENT_PLAN_v0.7.0.md`](DEVELOPMENT_PLAN_v0.7.0.md) for the active
+mainline-convergence plan.
 
-The current additive layer is **v0.6.1 `reference_experimental`**:
-complete/open PAL windows plus a TCN-pattern dilated address compiler.
-It does not alter the frozen v0.6.0 A–G reference functions.
+The current additive layer is **v0.6.2 `reference_experimental`**:
+v0.6.1 complete/open PAL windows and TCN-pattern dilated address
+compilation, followed by address-bound numeric fields, explicit signal
+routing, lossless polar coordinates, unitary spectral observations,
+address-aware gradients, and structural-bias review gates. It does not
+alter the frozen v0.6.0 A–G reference functions.
 
 ## Root contract
 
@@ -71,6 +77,50 @@ The compiler migrates a structural pattern from
 PyTorch semantics. See
 [`inst/TOPOLOGY_DILATED_COMPILER_CONTRACT_v061.md`](inst/TOPOLOGY_DILATED_COMPILER_CONTRACT_v061.md).
 
+## Numeric, polar, spectral, and audit example
+
+```r
+# Numeric meaning is declared by the caller; PAL tokens are not numbers.
+field <- new_numeric_field(
+  matrix(c(0, 1, 0, 1, 2, 1, 0, 1, 0), 3L),
+  value_semantics = "example intensity",
+  unit = "a.u.",
+  boundary_state = "closed",
+  signal = new_signal_envelope(
+    "example_sensor", "fast", "dense", 1L,
+    provenance = "README:fixture"
+  )
+)
+
+# Both views preserve the field source identity.
+chart <- polar_chart(field)
+plan <- compile_spectral_plan(field, "carrier", "finite_window")
+spectrum <- execute_spectral_plan(field, plan)
+gradient <- field_gradient(
+  field, chart,
+  spacing = c(row = 1, col = 1),
+  masked_policy = "refuse"
+)
+
+# Bias features are inspectable evidence—not a probability.
+evidence <- bias_features(field, chart, spectrum, gradient)
+evidence
+
+# Reproducible CPU evidence; timings are diagnostic, not frozen promises.
+benchmark_numeric_observers(c(3L, 11L), reps = 5L)
+benchmark_tap_compiler(c(9L, 33L), reps = 5L)
+```
+
+See
+[`inst/NUMERIC_SPECTRAL_CONTRACT_v062.md`](inst/NUMERIC_SPECTRAL_CONTRACT_v062.md)
+and
+[`inst/BIAS_EVIDENCE_CONTRACT_v062.md`](inst/BIAS_EVIDENCE_CONTRACT_v062.md).
+CPU measurement scope and interpretation are fixed in
+[`inst/CPU_EVIDENCE_CONTRACT_v062.md`](inst/CPU_EVIDENCE_CONTRACT_v062.md).
+Probability estimation is deliberately unavailable until a target,
+labelled outcomes, leakage-safe splits, independent calibration, and a
+separate lifecycle decision exist.
+
 ## Interactive + concurrent entry points
 
 ```r
@@ -105,11 +155,17 @@ interact("{A{B{C{D{e}D}C}B}A}", "orbit_rotate")   # full loop -> compute result
 - **v0.6.1: Addressed window + dilated topology compiler** —
   `reference_experimental`; explicit frontier nodes and registered C99
   tap-schedule acceleration with R/C equality tests.
+- **v0.6.2: Numeric/spectral/bias evidence layer** — address-bound
+  numerical fields, explicit signal schedules, lossless polar charts,
+  unitary FFT plans, gradients with declared coordinate spacing and masked
+  refusal, robust reference review gates, spectral property matrices, and
+  auditable CPU evidence; `reference_experimental`, with probability
+  prediction blocked.
 
 R package checks run on Linux, Windows, and macOS across release,
 oldrel, and devel. Runtime semantics use base R + `parallel`; optional
-storage/benchmark packages remain in `Suggests`, and v0.6.1 adds one
-registered C99 address kernel.
+storage/benchmark packages remain in `Suggests`, and the v0.6.1 base
+adds one registered C99 address kernel.
 
 ## License
 

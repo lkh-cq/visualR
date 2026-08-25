@@ -30,10 +30,13 @@ Description: A palindrome-addressed topological runtime with three-layer
     (carrier_11x11 / Gamma lowercasing / closure recurse) promoted to
     FROZEN with added coverage, metadata/lifecycle aligned. R
     interactive-concurrent is the benchmark; Python mapping_pack.py is
-    glue/cross-validation only. v0.8 adds a geometric transmission layer:
-    PositionState, immutable TransmissionPath, MetricLaw/TransportLaw
-    registries, geometric adjacency predicate, and an arbitration-only
-    collision plugin.
+    glue/cross-validation only. v0.6.2 adds address-bound numeric
+    observations, explicit multi-timescale signal routing, lossless polar
+    coordinates, unitary Fourier plans, address-aware finite differences,
+    and robust structural-bias review gates. v0.8 adds a geometric
+    transmission layer: PositionState, immutable TransmissionPath,
+    MetricLaw/TransportLaw registries, geometric adjacency predicate, and
+    an arbitration-only collision plugin.
 License: MIT + file LICENSE
 Encoding: UTF-8
 NeedsCompilation: yes

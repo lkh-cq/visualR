@@ -38,3 +38,12 @@ pal_fixture_n12 <- function() {
     core = "M"
   )
 }
+
+# Addressed open-window fixture shared by the v0.6.2 numeric tests.
+.numeric_window_fixture <- function() {
+  open_window_parse(
+    "}{B{C{D}C}B}{",
+    origin = 10L,
+    outer_ref = list(left = "solution:L", right = "solution:R")
+  )
+}
