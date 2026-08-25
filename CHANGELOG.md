@@ -6,6 +6,142 @@ most recent first. Statuses: `[Added]`, `[Changed]`, `[Fixed]`,
 
 ---
 
+## [v0.6.2] — 2026-08-24 (numeric observations + M2 evidence hardening)
+
+Additive `reference_experimental` numerical layer stacked on the v0.6.1
+address-window and dilated-topology compiler. Frozen PAL, mapping-pack,
+carrier, residual, closure, and promotion semantics are unchanged.
+
+### [Added]
+
+- `R/numeric_field.R` — finite real/complex values bound one-to-one to
+  stable PAL global addresses or matrix row/column addresses. Value
+  meaning, unit, mask, boundary, mapping-pack identity, signal envelope,
+  and source hash are explicit.
+- `R/signal_envelope.R` — deterministic static/fast/slow and
+  dense/sparse metadata scheduling without payload mixing or semantic
+  inference.
+- `R/polar_chart.R` — lossless polar coordinates over existing carrier
+  samples, including separate geometric/topology centers and no
+  resampling.
+- `R/spectral_plan.R` — source-bound unitary path/carrier FFT plans,
+  explicit finite-window/periodic policy, Parseval-compatible inverse,
+  and direct weighted angular modes. Periodic execution is refused for
+  open fields.
+- `R/field_gradient.R` — central/one-sided two-dimensional differences,
+  global-address path slopes, declared non-unit coordinate spacing,
+  explicit masked-data refusal, and optional radial/tangential projection.
+- `R/bias_audit.R` — named structural evidence, component-wise robust
+  normalization, empirical reference threshold, and fail-closed feature
+  schema checks.
+- Numeric/spectral and bias-evidence contracts in `inst/`, focused
+  testthat coverage, manual Rd pages, and the active v0.7.0 convergence
+  plan.
+- `benchmark_numeric_observers()` and `benchmark_tap_compiler()` — bounded
+  CPU evidence for field/polar/FFT/gradient/audit/scheduling stages and the
+  exact R/C99 tap boundary. Native timing is reported only after complete
+  schedule equality with R.
+- Deterministic spectral property matrices now cover odd, even,
+  rectangular, singleton, open-window, periodic, and complex cases.
+
+### [Status]
+
+- Bias output is an auditable `within_reference`/`review` action, not a
+  probability. Probability remains blocked until a target, labelled
+  outcomes, leakage-safe splits, independent calibration, held-out
+  metrics, and a separate promotion decision exist.
+- The TCN reference remains a structural compiler pattern only; no
+  neural weights, training behavior, or PyTorch semantics are claimed.
+- All v0.6.2 objects remain `reference_experimental` pending full
+  cross-platform CI, benchmark-artifact review, and a separate lifecycle
+  decision.
+
+---
+
+---
+
+## [v0.7.0] — 2026-08-22 (Central Router & Emergence Computation Loop)
+
+Architecture-exploration mainline: defines the **Central Router** as an
+Emergence Transport Topology Generator, NOT a migrated DL model. All additive
+and CPU-native; R is semantic authority. Two-layer Emergence Packet with
+opaque payload (A2 semantic blindness); routing plan carries no semantics
+(A4); adjacency is the computational gate (A3); round atomicity via immutable
+snapshot (A5); position is computational state (A6); no accelerator-driven
+densification (A7).
+
+### [Added] — Router contract base (architecture-language)
+
+- `inst/ROUTER_CONTRACT_v070.md` (contract base — 10 shared objects with
+  exact field schema + ownership matrix one-writer-per-cell + interface seams).
+- `R/router_contract.R` — frozen shared constructors/validators:
+  `new_merge` (opaque content behind a closure env), `merge_content`,
+  `merge_id_of`, `new_routing_envelope`, `new_emergence_packet`,
+  `router_envelope` (envelope-only accessor = semantic-blindness seam),
+  `validate_emergence_packet`, `new_router_snapshot`, `new_routing_plan`,
+  `validate_router_plan` (rejects semantic fields, A4), `new_adjacency_pair`,
+  `validate_adjacency_pair`, `new_harmony_event`, `validate_harmony_event`,
+  `new_merge_result`, `new_computation_round` + print methods.
+- `IMPLEMENTATION_PLAN_v0.7.0.md` — decomposed sub-plan (22 sections).
+
+### [Added] — Phase 1 Emergence Packet ABI
+
+- `R/emergence_packet.R` — `pack_emergence()` (local-side carry; auto content-
+  integrity hash) and `unpack_for_local()` (destination-side verify, fails
+  closed on tamper / malformed envelope).
+
+### [Added] — Phase 2+3 Central Router ABI + baseline policies
+
+- `R/router_abi.R` — `route_emergence()` (+ `new_router_policy()` /
+  `get_router_policy()`): reads envelopes ONLY, returns a validated
+  RoutingPlan.
+- `R/router_policy.R` — 6 toy baselines (`identity_route`,
+  `nearest_valid_route`, `phase_route`, `resource_route`,
+  `deterministic_shuffle_route`, `random_reference_route`) + 
+  `register_baseline_router_policies()`. Edges keyed by packet_id; policies
+  are pure and order-independent.
+
+### [Added] — Phase 4 Adjacency Materialization
+
+- `R/adjacency.R` — `materialize_adjacency()` (RoutingPlan -> AdjacencyPair)
+  + `validate_adjacency()`. Fails closed on self-adjacency (A6), non-existent
+  packet, or non-open cell.
+
+### [Added] — Phase 5 Harmony ABI (interface, not theory)
+
+- `R/harmony_contract.R` — `register_harmony_operator()` / `harmony_step()`
+  + built-ins (identity / swap / pair_comp / reversible_toy). Accepts ONLY an
+  AdjacencyPair (A3); produces a fresh Merge. merge_id is deterministic
+  (pure function of the pair) so serial == PSOCK (contract 14.4).
+
+### [Added] — Phase 6+7 Round orchestrator + loop
+
+- `R/emergence_round.R` — `run_emergence_round()` (wires Phases 1-5 into one
+  atomic ComputationRound; resolves the packet_id<->Merge seam) +
+  `run_emergence_system()` (multi-round loop with structural topology
+  observability — no intelligence/AGI score).
+
+### [Added] — Tests (6-class contract system)
+
+- `tests/testthat/test-emergence-packet.R` (P1 envelope-identical),
+  `test-router-abi.R` (A4 + pluggability + snapshot-equivalence),
+  `test-adjacency-gate.R` (A3 gate), `test-harmony-boundary.R` (A3 + A6 +
+  determinism), `test-emergence-round.R` (round + trace-completeness +
+  mutation-boundary), `test-round-concurrency.R` (14.4 serial == PSOCK).
+
+### [Added] — Promotion Gate proof tests (16-item gate, §18)
+
+- `tests/testthat/test-router-blindness.R` — adversarial semantic-isolation
+  (a policy that ATTEMPTS to read payload semantics, and a direct
+  `router_envelope` access check) + recursive A4 scan (gate 9/10/11) +
+  no-silent-padding/aggregation on the round result.
+- `tests/testthat/test-emergence-trace.R` — gate 7 trace completeness: every
+  new Merge reconstructs sources / policy / position / operator / round.
+- `tests/testthat/test-fail-closed.R` — gate 12: enumerated `stop()` paths
+  across all v0.7 modules, each asserted to throw.
+- Harmony event trace enriched to carry `src=<id>@<addr>~<id>@<addr>` and
+  `op=<operator>` so a new Merge is fully traceable from its trace alone.
+
 ## [v0.6.1] — 2026-08-14 (addressed window + dilated topology compiler)
 
 Additive, `reference_experimental` migration of the structural compile
@@ -234,5 +370,6 @@ on 5 platforms.
 
 ---
 
-*Changelog maintained alongside DEVELOPMENT_PLAN_v0.5.0.md. The plan is
-the authoritative roadmap; this log records what changed.*
+*Frozen historical direction remains in DEVELOPMENT_PLAN_v0.5.0.md;
+DEVELOPMENT_PLAN_v0.7.0.md is the active convergence roadmap. This log
+records what changed.*

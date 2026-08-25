@@ -4,3 +4,10 @@
 .Ruserdata
 *.tar.gz
 *.Rcheck/
+
+# local build artifacts
+src/*.o
+src/*.so
+src/*.dll
+*.tar.gz
+visualR.Rcheck/
