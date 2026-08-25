@@ -45,6 +45,35 @@ Conflict forecast (from diff inspection):
 - inst/PAL_NESTED_CONTRACT.md: numeric adds §6.1; no other line touches it.
 - R/visualR-package.R: doc-comment only on numeric; none elsewhere.
 
+### 1.1 Merge-time known hazards (pre-flight audit 2026-08-25, 12 dimensions)
+
+Verified by direct branch diffs before any merge executes:
+
+1. **Version drift across lines.** main=0.6.1 / router-core-v0.7=**0.6.0
+   (never bumped through all 8 commits)** / numeric-spectral-bias=0.6.2 /
+   geometry-transport-v0.8=0.7.9001. At Step A the DESCRIPTION version MUST
+   be hand-set to 0.7.0; never trust the router branch's own value.
+2. **Two unrelated "v0.7 plan" documents.** numeric carries
+   DEVELOPMENT_PLAN_v0.7.0.md (numeric M0-M4 milestones); the router line
+   carries IMPLEMENTATION_PLAN_v0.7.0.md (router phases). Both must be kept,
+   each with a header note pointing to the other, or future archaeology will
+   misattribute them (S1-21 same-family risk).
+3. **CHANGELOG: all three lines edit the head.** Entries must be re-ordered
+   by timeline across three lineages at merge time; take-one-side is wrong.
+
+Non-conflicts verified (safe to merge mechanically):
+- NAMESPACE export clash: ZERO — numeric adds 15 exports, router line 41,
+  geometry line 21; pairwise intersections of the add-sets are empty.
+- Reverse dependency: numeric's four core modules reference zero v0.7
+  functions (route_emergence/harmony_step/materialize_adjacency/new_merge/
+  AdjacencyPair all count = 0), so Step C is safe after B.
+- Test helpers: numeric appends to helper-pal.R; geometry adds its own
+  helper-geometry.R — different files.
+- CI workflow: numeric appends two CPU-evidence steps; router line does not
+  touch .github/.
+- src/ C code: untouched by all three lines.
+
+
 ## 2. What each line contributes to the converged mainline
 
 ```text
