@@ -42,8 +42,8 @@ run_transmission_round(states, predicate, metric_name, transport_law_name,
 register_metric("manhattan", function(a, b) sum(abs(a$coordinate - b$coordinate)))
 register_transport_law("grid_identity", function(state, from, to, regulation = NULL) state)
 m <- new_merge("p", "m1", "local-A", 1L)
-s <- transmit_step(m, new_position_state("/a", c(0,0), "grid"),
-                   new_position_state("/b", c(1,0), "grid"),
+s <- transmit_step(m, new_position_state(c("/a", "/ab"), c(0,0), "grid"),
+                   new_position_state(c("/b", "/bb"), c(1,0), "grid"),
                    "manhattan", "grid_identity", 1L)
 run_transmission_round(list(s), default_adjacency_predicate(2, "manhattan"),
                        "manhattan", "grid_identity", 2L)$dropped

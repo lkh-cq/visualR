@@ -25,7 +25,7 @@ paths_equal(p1, p2)
   paths, let alone equal transport results.
 }
 \examples{
-shared <- new_position_state("/a", c(0,0), "grid")
+shared <- new_position_state(c("/a", "/ab"), c(0,0), "grid")
 paths_equal(new_transmission_path("m1", shared),
             new_transmission_path("m2", shared))
 }

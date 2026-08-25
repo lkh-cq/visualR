@@ -30,8 +30,8 @@ detect_adjacency(states, predicate, logical_time)
   it is independent of, not derived from, any Router plan.
 }
 \examples{
-p0 <- new_position_state("/a", c(0,0), "grid")
-p1 <- new_position_state("/b", c(1,0), "grid")
+p0 <- new_position_state(c("/a", "/ab"), c(0,0), "grid")
+p1 <- new_position_state(c("/b", "/bb"), c(1,0), "grid")
 register_metric("manhattan", function(a, b) sum(abs(a$coordinate - b$coordinate)))
 adj <- detect_adjacency(list(p0, p1), default_adjacency_predicate(2, "manhattan"), 1L)
 length(adj$pairs)

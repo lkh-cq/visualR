@@ -21,7 +21,7 @@ path_length_steps(path)
   steps+1 for a non-empty path since each step links two positions.
 }
 \examples{
-p0 <- new_position_state("/a", c(0,0), "grid")
+p0 <- new_position_state(c("/a", "/ab"), c(0,0), "grid")
 path <- new_transmission_path("m1", p0)
 path_length_steps(path)
 }

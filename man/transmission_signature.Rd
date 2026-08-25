@@ -25,7 +25,7 @@ transmission_signature(path)
   full history does that.
 }
 \examples{
-p0 <- new_position_state("/a", c(0,0), "grid")
+p0 <- new_position_state(c("/a", "/ab"), c(0,0), "grid")
 path <- new_transmission_path("m1", p0)
 transmission_signature(path)$n_steps
 }

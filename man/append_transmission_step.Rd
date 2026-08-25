@@ -33,8 +33,8 @@ append_transmission_step(path, from, to, grade, logical_time,
   steps are copied, never overwritten.
 }
 \examples{
-p0 <- new_position_state("/a", c(0,0), "grid")
-p1 <- new_position_state("/b", c(1,0), "grid")
+p0 <- new_position_state(c("/a", "/ab"), c(0,0), "grid")
+p1 <- new_position_state(c("/b", "/bb"), c(1,0), "grid")
 path <- new_transmission_path("m1", p0)
 path <- append_transmission_step(path, p0, p1, "T1", 1L)
 path_length_steps(path)

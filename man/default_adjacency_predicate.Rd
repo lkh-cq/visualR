@@ -31,8 +31,8 @@ default_adjacency_predicate(max_distance = 1, metric_name = "manhattan",
 }
 \examples{
 register_metric("manhattan", function(a, b) sum(abs(a$coordinate - b$coordinate)))
-p0 <- new_position_state("/a", c(0,0), "grid")
-p1 <- new_position_state("/b", c(1,0), "grid")
+p0 <- new_position_state(c("/a", "/ab"), c(0,0), "grid")
+p1 <- new_position_state(c("/b", "/bb"), c(1,0), "grid")
 pred <- default_adjacency_predicate(1, "manhattan")
 pred(p0, p1, 1L)
 }

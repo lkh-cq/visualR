@@ -30,7 +30,7 @@ new_transported_state(merge_obj, position, path, signature,
 }
 \examples{
 m <- new_merge("payload", "m1", "local-A", 1L)
-p0 <- new_position_state("/a", c(0,0), "grid")
+p0 <- new_position_state(c("/a", "/ab"), c(0,0), "grid")
 path <- new_transmission_path("m1", p0)
 st <- new_transported_state(m, p0, path, transmission_signature(path))
 st$merge_id

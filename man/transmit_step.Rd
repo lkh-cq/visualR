@@ -36,7 +36,7 @@ transmit_step(merge_obj, from, to, metric_name, transport_law_name,
 register_metric("manhattan", function(a, b) sum(abs(a$coordinate - b$coordinate)))
 register_transport_law("grid_identity", function(state, from, to, regulation = NULL) state)
 m <- new_merge("payload", "m1", "local-A", 1L)
-p0 <- new_position_state("/a", c(0,0), "grid")
-p1 <- new_position_state("/b", c(1,0), "grid")
+p0 <- new_position_state(c("/a", "/ab"), c(0,0), "grid")
+p1 <- new_position_state(c("/b", "/bb"), c(1,0), "grid")
 transmit_step(m, p0, p1, "manhattan", "grid_identity", 1L)$position$address
 }

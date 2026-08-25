@@ -31,6 +31,6 @@ new_position_state(address, coordinate, cell, layer = 0L, chart = "grid")
   adjacency predicate rely on.
 }
 \examples{
-p <- new_position_state("/alpha", c(0, 1), "grid", layer = 0L)
+p <- new_position_state(c("/alpha", "/alphab"), c(0, 1), "grid", layer = 0L)
 p$coordinate
 }

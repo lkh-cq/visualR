@@ -27,7 +27,7 @@ emergence_position_rule(policy, left_pos, right_pos)
   is kept explicit so the choice is never implicit.
 }
 \examples{
-p1 <- new_position_state("/a", c(0,0), "grid")
-p2 <- new_position_state("/b", c(2,0), "grid")
+p1 <- new_position_state(c("/a", "/ab"), c(0,0), "grid")
+p2 <- new_position_state(c("/b", "/bb"), c(2,0), "grid")
 emergence_position_rule("shared_boundary", p1, p2)$coordinate
 }

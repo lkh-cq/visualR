@@ -25,7 +25,7 @@ new_transmission_path(merge_id, start_position)
   (\code{\link{append_transmission_step}} enforces this, fail closed).
 }
 \examples{
-p0 <- new_position_state("/a", c(0, 0), "grid")
+p0 <- new_position_state(c("/a", "/ab"), c(0, 0), "grid")
 path <- new_transmission_path("m1", p0)
 path$positions[[1]]$address
 }
