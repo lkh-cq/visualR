@@ -13,15 +13,16 @@ The frozen runtime baseline is **visualR v0.5.0**:
 
 See [`DEVELOPMENT_PLAN_v0.5.0.md`](DEVELOPMENT_PLAN_v0.5.0.md) for that
 historical frozen baseline and
-[`DEVELOPMENT_PLAN_v0.7.0.md`](DEVELOPMENT_PLAN_v0.7.0.md) for the active
+[`DEVELOPMENT_PLAN_v0.9.0.md`](DEVELOPMENT_PLAN_v0.9.0.md) for the active
 mainline-convergence plan.
 
-The current additive layer is **v0.6.2 `reference_experimental`**:
-v0.6.1 complete/open PAL windows and TCN-pattern dilated address
-compilation, followed by address-bound numeric fields, explicit signal
-routing, lossless polar coordinates, unitary spectral observations,
-address-aware gradients, and structural-bias review gates. It does not
-alter the frozen v0.6.0 A–G reference functions.
+The current converged mainline is **v0.9** (2026-08-25, PR #4): three
+parallel lines merged — the router/emergence loop (v0.7 line), the
+geometric transmission layer (v0.8 line: `PositionState`, immutable
+`TransmissionPath`, `MetricLaw`/`TransportLaw` registries, geometric
+adjacency authority with an arbitration-only collision plugin), and the
+numeric/spectral evidence layer (v0.6.2 line). The frozen v0.6.0 A–G
+reference functions are unchanged.
 
 ## Root contract
 

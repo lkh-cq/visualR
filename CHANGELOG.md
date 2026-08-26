@@ -6,6 +6,32 @@ most recent first. Statuses: `[Added]`, `[Changed]`, `[Fixed]`,
 
 ---
 
+## [v0.9.0-convergence] — 2026-08-25 (three-line mainline convergence + D1)
+
+Merged three parallel lines into one mainline per
+[`DEVELOPMENT_PLAN_v0.9.0.md`](DEVELOPMENT_PLAN_v0.9.0.md):
+router/emergence loop (v0.7 line), geometric transmission layer (v0.8
+line: PositionState, immutable TransmissionPath, MetricLaw/TransportLaw
+registries, geometric runtime, arbitration-only collision plugin), and
+numeric/spectral evidence layer (v0.6.2 line).
+
+**D1 decision landed**: the geometric adjacency predicate is the sole
+authority for computation eligibility. Router-plan edges are candidates
+only — `filter_plan_through_predicate()` verifies every edge against the
+predicate (unmappable address = fail closed); rejected edges are recorded,
+never silently dropped (`assert_no_rejected_edges()` = strict gate).
+`materialize_adjacency()` remains as a deprecated adapter until v0.10.
+
+Cross-platform CI evidence: 5/5 platforms green (R release x
+ubuntu/windows/macos, R devel, R oldrel-1) after fixing a source-path-based
+authority test (now namespace reflection), non-ASCII R code, unqualified
+stats/utils calls, and an honestly-reweakened throughput bound with
+documented CI-runner evidence.
+
+D2-D5 reconciliation decisions remain open in the development plan.
+
+---
+
 ## [v0.6.2] — 2026-08-24 (numeric observations + M2 evidence hardening)
 
 Additive `reference_experimental` numerical layer stacked on the v0.6.1
